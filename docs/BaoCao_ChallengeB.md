@@ -371,7 +371,7 @@ Khớp md §2 (~6,6M so với ~6,4k). Mô phỏng 40 lượt (md §8): native ph
 
 ## 9. Hướng dẫn chạy lại
 
-Xem `README.md`. Tóm tắt: `conda activate se373`, đặt `PYTHONPATH=src`, chạy `python -m ctxb run-b1 …`, `python -m ctxb run-b2 …`, `streamlit run app/streamlit_app.py`.
+Xem `README.md`. Tóm tắt: `pip install -e ".[ui,dev]"`, chạy `python -m ctxb run-b1 …`, `python -m ctxb run-b2 …`, `streamlit run app/streamlit_app.py`.
 
 Giao diện web (đọc trực tiếp `reports/`; ảnh khác trong `docs/figures/ui_*.png`):
 

@@ -29,19 +29,21 @@ Challenge B thuộc Buổi 7 (*Memory, Context Engineering & Prompt Caching*) g�
 
 | Thành phần | Giá trị |
 |---|---|
-| Ngôn ngữ | Python 3.11, môi trường conda `se373` |
+| Ngôn ngữ | Python 3.11 trở lên (nhóm thử nghiệm trên Python 3.11.16, Windows 11) |
 | Model | Google Gemini `gemini-3.5-flash-lite` qua SDK `google-genai`, free tier (250k token/phút, 500 request/ngày) |
 | Thư viện chính | `google-genai` 2.28, `python-dotenv`, `PyYAML`, `pandas`, `streamlit` 1.66, `pytest` (xem `requirements.txt`) |
 | Cấu hình | File `.env` (sao chép từ `.env.example`): `GEMINI_API_KEY`, `GEMINI_MODEL`, `CTXB_CONTEXT_WINDOW`, `CTXB_MICRO_THRESHOLD`, `CTXB_FULL_THRESHOLD` |
-| Mã nguồn | Package `ctxb` trong `Chanllenge_B/src/` |
+| Mã nguồn | Package `ctxb` trong `src/`, repo https://github.com/dthanhman/Compact-Challenge-B |
 
-Cài đặt và chạy (Windows):
+Cài đặt và chạy (Windows; macOS/Linux dùng `source .venv/bin/activate` và `cp`):
 
 ```
-conda activate se373
-cd Chanllenge_B
+git clone https://github.com/dthanhman/Compact-Challenge-B.git
+cd Compact-Challenge-B
+python -m venv .venv
+.venv\Scripts\activate          :: hoặc một env conda bất kỳ có Python 3.11+
+pip install -e ".[ui,dev]"
 copy .env.example .env          :: điền GEMINI_API_KEY
-set PYTHONPATH=src              :: PowerShell: $env:PYTHONPATH="src"
 
 python -m pytest                :: 46 test, không cần API key
 python -m ctxb run-b1 --strategy all --window 32000 --cold-start

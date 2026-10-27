@@ -1,4 +1,4 @@
-"""Web UI Challenge B — chạy: ``streamlit run app/streamlit_app.py`` (từ thư mục Chanllenge_B, env se373).
+"""Web UI Challenge B — chạy: ``streamlit run app/streamlit_app.py`` (từ thư mục gốc của repo).
 
 UI không chứa logic: chỉ gọi ``ctxb`` và đọc ``reports/``. Thí nghiệm dài chạy bằng CLI.
 """
