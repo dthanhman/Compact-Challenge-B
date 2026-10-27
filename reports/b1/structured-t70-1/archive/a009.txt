@@ -1,0 +1,35 @@
+// src/session.ts — quản lý session phía server, tự refresh khi access token hết hạn
+import { refresh, TokenPair, AuthError } from "./auth";
+import { nowSeconds } from "./utils";
+
+export interface Session {
+  userId: string;
+  tokens: TokenPair;
+}
+
+const sessions = new Map<string, Session>();
+
+export async function getValidTokens(sessionId: string): Promise<TokenPair> {
+  const s = sessions.get(sessionId);
+  if (!s) throw new AuthError("ERR_SESSION_NOT_FOUND");
+  if (s.tokens.expiresAt > nowSeconds()) return s.tokens;
+  
+  let attempts = 0;
+  const maxAttempts = 3;
+  while (true) {
+    try {
+      attempts++;
+      s.tokens = await refresh(s.tokens.refreshToken);
+      return s.tokens;
+    } catch (err) {
+      if (err instanceof AuthError && err.code === "ERR_TOKEN_REUSED" && attempts < maxAttempts) {
+        console.log(`[retry] refresh attempt=${attempts} backoff=${attempts * 100}ms`);
+        await new Promise((res) => setTimeout(res, attempts * 100));
+        // Cập nhật lại token từ session hiện tại (có thể đã được refresh bởi request khác)
+        const currentSession = sessions.get(sessionId);
+        if (!currentSession) throw new AuthError("ERR_SESSION_NOT_FOUND");
+        s.tokens = currentSession.tokens;
+        if (s.tokens.expiresAt > nowSeconds()) return s.tokens;
+        continue;
+      }
+      throw err;

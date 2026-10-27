@@ -1,0 +1,394 @@
+[
+ {
+  "i": 0,
+  "role": "user",
+  "turn": 7,
+  "tokens": 45,
+  "checkpoint": false,
+  "preview": "Hai cách đó đều không giúp. Revert cả hai thay đổi (ttlSeconds về 900, bỏ đoạn retry trong session.ts) rồi chạy lại test để chắc chắn code đã về trạng thái ban đầu."
+ },
+ {
+  "i": 1,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 13,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "list_files",
+    "args": {}
+   }
+  ],
+  "preview": "[{\"name\": \"list_files\", \"args\": {}}]"
+ },
+ {
+  "i": 2,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 264,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "list_files",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {}
+   }
+  ],
+  "preview": "[{\"name\": \"list_files\", \"response\": {\"ok\": true, \"count\": 39, \"files\": [\".env\", \"config/token.json\", \"logs/app-2026-09-01.log\", \"logs/app-2026-09-02.log\", \"logs/app-2026-09-03.log\", \"logs/app-2026-09-04.log\", \"logs/app-2026-09-05.log\", \"logs/app-2026-09-06.log\", \"logs/app-2026-09-07.log\", \"logs/app-2026-09-08.log\", \"logs/app-2026-09-09.log\", \"logs/app-2026-09-10.log\", \"logs/app-2026-09-11.log\", \"logs/app-2026-09-12.log\", \"logs/app-2026-09-13.log\", \"logs/app-2026-09-14.log\", \"logs/app-2026-09-15.log\", \"logs/app-2026-09-16.log\", \"logs/app-2026-09-17.log\", \"logs/app-2026-09-18.log\", \"logs/app-2026-09-19.log\", \"logs/app-2026-09-20.log\", \"logs/app-2026-09-21.log\", \"logs/app-2026-09-22.log\", \"logs/app-2026-09-23.log\", \"logs/app-2026-09-24.log\", \"logs/app-2026-09-25.log\", \"logs/app-2026-09-26.log\", \"logs/app-2026-09-27.log\", \"logs/app-2026-09-28.log\", \"logs/app-2026-09-29.log\", \"logs/app-2026-09-30.log\", \"package.json\", \"src/auth.ts\", \"src/config.ts\", \"src/session.ts\", \"src/tokenStore.ts\", \"src/utils.ts\", \"tests/auth.test.ts\"]}}]"
+ },
+ {
+  "i": 3,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 18,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "grep",
+    "args": {
+     "pattern": "ttlSeconds"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"grep\", \"args\": {\"pattern\": \"ttlSeconds\"}}]"
+ },
+ {
+  "i": 4,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 64,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "grep",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "pattern": "ttlSeconds"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"grep\", \"response\": {\"ok\": true, \"count\": 3, \"truncated\": false, \"matches\": \"config/token.json:2:   \\\"ttlSeconds\\\": 1800\\nsrc/auth.ts:23:     expiresAt: nowSeconds() + cfg.ttlSeconds,\\nsrc/config.ts:5:   ttlSeconds: number;\"}}]"
+ },
+ {
+  "i": 5,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 16,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "grep",
+    "args": {
+     "pattern": "retry"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"grep\", \"args\": {\"pattern\": \"retry\"}}]"
+ },
+ {
+  "i": 6,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 6109,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "grep",
+    "label": "KEEP",
+    "archive_id": "a015",
+    "args": {
+     "pattern": "retry"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"grep\", \"response\": {\"ok\": true, \"count\": 354, \"truncated\": false, \"matches\": \"logs/app-2026-09-01.log:5: 2026-09-01T00:28:48.763Z WARN  auth - retry refresh attempt=2 backoff=200ms req=862fe2\\nlogs/app-2026-09-01.log:25: 2026-09-01T02:52:48.698Z WARN  auth - retry refresh attempt=2 backoff=200ms req=6577bb\\nlogs/app-2026-09-01.log:27: 2026-09-01T03:07:12.507Z WARN  auth - retry refresh attempt=1 backoff=100ms req=f848a9\\nlogs/app-2026-09-01.log:28: 2026-09-01T03:14:24.236Z WARN  auth - retry refresh attempt=2 backoff=200ms req=7711b7\\nlogs/app-2026-09-01.log:38: 2026-09-01T04:26:24.987Z WARN  auth - retry refresh attempt=2 backoff=200ms req=c2410a\\nlogs/app-2026-09-01.log:50: 2026-09-01T05:52:48.950Z WARN  auth - retry refresh attempt=3 backoff=300ms req=7f1d49\\nlogs/app-2026-09-01.log:66: 2026-09-01T07:48:00.847Z WARN  auth - retry refresh attempt=1 backoff=100ms req=954c2f\\nlogs/app-2026-09-01.log:73: 2026-09-01T08:38:24.319Z WARN  auth - retry refresh attempt=2 backoff=200ms req=13f388\\nlogs/app-2026-09-01.log:90: 2026-09-01T10:40:48.849Z WARN  auth - retry refresh attempt=1 backoff=100ms req=791397\\nlogs/app-2026-09-01.log:142: 2026-09-01T16:55:12.936Z WARN  auth - retry refresh attempt=2 backoff=200ms req=53add8\\nlogs/app-2026-09-01.log:143: 2026-09-01T17:02:24.336Z WARN  auth - retry refresh attempt=3 backoff=300ms req=99ea45\\nlogs/app-2026-09-01.log:151: 2026-09-01T18:00:00.780Z WARN  auth - retry refresh attempt=3 backoff=300ms req=5d082e\\nlogs/app-2026-09-"
+ },
+ {
+  "i": 7,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 27,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "read_file",
+    "args": {
+     "path": "src/session.ts",
+     "start_line": 1,
+     "end_line": 50
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"args\": {\"path\": \"src/session.ts\", \"start_line\": 1, \"end_line\": 50}}]"
+ },
+ {
+  "i": 8,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 463,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "read_file",
+    "label": "KEEP",
+    "archive_id": "a016",
+    "args": {
+     "path": "src/session.ts",
+     "start_line": 1,
+     "end_line": 50
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"response\": {\"ok\": true, \"path\": \"src/session.ts\", \"total_lines\": 118, \"start_line\": 1, \"end_line\": 50, \"content\": \"// src/session.ts — quản lý session phía server, tự refresh khi access token hết hạn\\nimport { refresh, TokenPair, AuthError } from \\\"./auth\\\";\\nimport { nowSeconds } from \\\"./utils\\\";\\n\\nexport interface Session {\\n  userId: string;\\n  tokens: TokenPair;\\n}\\n\\nconst sessions = new Map<string, Session>();\\n\\nexport async function getValidTokens(sessionId: string): Promise<TokenPair> {\\n  const s = sessions.get(sessionId);\\n  if (!s) throw new AuthError(\\\"ERR_SESSION_NOT_FOUND\\\");\\n  if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\\n  // Nhiều request cùng session có thể tới đây cùng lúc -> gọi refresh() song song\\n  let attempts = 0;\\n  while (true) {\\n    try {\\n      s.tokens = await refresh(s.tokens.refreshToken);\\n      break;\\n    } catch (err) {\\n      if (err instanceof AuthError && err.code === \\\"ERR_TOKEN_REUSED\\\" && attempts < 3) {\\n        attempts++;\\n        await new Promise((res) => setTimeout(res, attempts * 50));\\n        // Cập nhật lại s từ sessions trong trường hợp request song song đã refresh thành công\\n        const latest = sessions.get(sessionId);\\n        if (latest) {\\n          s.tokens = latest.tokens;\\n          if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\\n        }\\n        continue;\\n      }\\n      throw err;\\n    }\\n  }\\n  return s.tokens;\\n}\\n\\nexport function putSession(sessionId: strin"
+ },
+ {
+  "i": 9,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 28,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "read_file",
+    "args": {
+     "end_line": 15,
+     "start_line": 1,
+     "path": "config/token.json"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"args\": {\"end_line\": 15, \"start_line\": 1, \"path\": \"config/token.json\"}}]"
+ },
+ {
+  "i": 10,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 47,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "read_file",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "end_line": 15,
+     "start_line": 1,
+     "path": "config/token.json"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"response\": {\"ok\": true, \"path\": \"config/token.json\", \"total_lines\": 3, \"start_line\": 1, \"end_line\": 3, \"content\": \"{\\n  \\\"ttlSeconds\\\": 1800\\n}\"}}]"
+ },
+ {
+  "i": 11,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 41,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "replace_in_file",
+    "args": {
+     "old": "{\n  \"ttlSeconds\": 1800\n}",
+     "path": "config/token.json",
+     "new": "{\n  \"ttlSeconds\": 900\n}"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"replace_in_file\", \"args\": {\"old\": \"{\\n  \\\"ttlSeconds\\\": 1800\\n}\", \"path\": \"config/token.json\", \"new\": \"{\\n  \\\"ttlSeconds\\\": 900\\n}\"}}]"
+ },
+ {
+  "i": 12,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 25,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "replace_in_file",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "old": "{\n  \"ttlSeconds\": 1800\n}",
+     "path": "config/token.json",
+     "new": "{\n  \"ttlSeconds\": 900\n}"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"replace_in_file\", \"response\": {\"ok\": true, \"path\": \"config/token.json\"}}]"
+ },
+ {
+  "i": 13,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 28,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "read_file",
+    "args": {
+     "path": "src/session.ts",
+     "start_line": 13,
+     "end_line": 45
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"args\": {\"path\": \"src/session.ts\", \"start_line\": 13, \"end_line\": 45}}]"
+ },
+ {
+  "i": 14,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 323,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "read_file",
+    "label": "KEEP",
+    "archive_id": "a017",
+    "args": {
+     "path": "src/session.ts",
+     "start_line": 13,
+     "end_line": 45
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"response\": {\"ok\": true, \"path\": \"src/session.ts\", \"total_lines\": 118, \"start_line\": 13, \"end_line\": 45, \"content\": \"  const s = sessions.get(sessionId);\\n  if (!s) throw new AuthError(\\\"ERR_SESSION_NOT_FOUND\\\");\\n  if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\\n  // Nhiều request cùng session có thể tới đây cùng lúc -> gọi refresh() song song\\n  let attempts = 0;\\n  while (true) {\\n    try {\\n      s.tokens = await refresh(s.tokens.refreshToken);\\n      break;\\n    } catch (err) {\\n      if (err instanceof AuthError && err.code === \\\"ERR_TOKEN_REUSED\\\" && attempts < 3) {\\n        attempts++;\\n        await new Promise((res) => setTimeout(res, attempts * 50));\\n        // Cập nhật lại s từ sessions trong trường hợp request song song đã refresh thành công\\n        const latest = sessions.get(sessionId);\\n        if (latest) {\\n          s.tokens = latest.tokens;\\n          if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\\n        }\\n        continue;\\n      }\\n      throw err;\\n    }\\n  }\\n  return s.tokens;\\n}\\n\\nexport function putSession(sessionId: string, session: Session): void {\\n  sessions.set(sessionId, session);\\n}\\n\\nexport function dropSession(sessionId: string): void {\\n  sessions.delete(sessionId);\"}}]"
+ },
+ {
+  "i": 15,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 410,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "write_file",
+    "args": {
+     "path": "src/session.ts",
+     "content": "// src/session.ts — quản lý session phía server, tự refresh khi access token hết hạn\nimport { refresh, TokenPair, AuthError } from \"./auth\";\nimport { nowSeconds } from \"./utils\";\n\nexport interface Session {\n  userId: string;\n  tokens: TokenPair;\n}\n\nconst sessions = new Map<string, Session>();\n\nexport async function getValidTokens(sessionId: string): Promise<TokenPair> {\n  const s = sessions.get(sessionId);\n  if (!s) throw new AuthError(\"ERR_SESSION_NOT_FOUND\");\n  if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\n  s.tokens = await refresh(s.tokens.refreshToken);\n  return s.tokens;\n}\n\nexport function putSession(sessionId: string, session: Session): void {\n  sessions.set(sessionId, session);\n}\n\nexport function dropSession(sessionId: string): void {\n  sessions.delete(sessionId);\n}\n\n/** Kiểm tra claim `region`/`iss` cho policy #0. */\nexport function sessionPolicy0(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  return (tokenPolicyA(a) && tokenPolicyB(b)) || (tokenPolicyC(a) && tokenPolicyD(b));\n}\n\nfunction tokenPolicyA(val: string): boolean {\n  return val.length > 0 && val.startsWith(\"vn-\");\n}\n\nfunction tokenPolicyB(val: string): boolean {\n  return val.length > 0 && val.endsWith(\"-auth\");\n}\n\nfunction tokenPolicyC(val: string): boolean {\n  return val.length > 0 && val.startsWith(\"sg-\");\n}\n\nfunction tokenPolicyD(val: string): boolean {\n  return val.length > 0 && val.endsWith(\"-sso\");\n}\n"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"write_file\", \"args\": {\"path\": \"src/session.ts\", \"content\": \"// src/session.ts — quản lý session phía server, tự refresh khi access token hết hạn\\nimport { refresh, TokenPair, AuthError } from \\\"./auth\\\";\\nimport { nowSeconds } from \\\"./utils\\\";\\n\\nexport interface Session {\\n  userId: string;\\n  tokens: TokenPair;\\n}\\n\\nconst sessions = new Map<string, Session>();\\n\\nexport async function getValidTokens(sessionId: string): Promise<TokenPair> {\\n  const s = sessions.get(sessionId);\\n  if (!s) throw new AuthError(\\\"ERR_SESSION_NOT_FOUND\\\");\\n  if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\\n  s.tokens = await refresh(s.tokens.refreshToken);\\n  return s.tokens;\\n}\\n\\nexport function putSession(sessionId: string, session: Session): void {\\n  sessions.set(sessionId, session);\\n}\\n\\nexport function dropSession(sessionId: string): void {\\n  sessions.delete(sessionId);\\n}\\n\\n/** Kiểm tra claim `region`/`iss` cho policy #0. */\\nexport function sessionPolicy0(claims: Record<string, string>): boolean {\\n  const a = claims[\\\"region\\\"] ?? \\\"\\\";\\n  const b = claims[\\\"iss\\\"] ?? \\\"\\\";\\n  return (tokenPolicyA(a) && tokenPolicyB(b)) || (tokenPolicyC(a) && tokenPolicyD(b));\\n}\\n\\nfunction tokenPolicyA(val: string): boolean {\\n  return val.length > 0 && val.startsWith(\\\"vn-\\\");\\n}\\n\\nfunction tokenPolicyB(val: string): boolean {\\n  return val.length > 0 && val.endsWith(\\\"-auth\\\");\\n}\\n\\nfunction tokenPolicyC(val: string): boolean {\\n  return val.length > 0 && val.startsWith(\\"
+ },
+ {
+  "i": 16,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 27,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "write_file",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "path": "src/session.ts",
+     "content": "// src/session.ts — quản lý session phía server, tự refresh khi access token hết hạn\nimport { refresh, TokenPair, AuthError } from \"./auth\";\nimport { nowSeconds } from \"./utils\";\n\nexport interface Session {\n  userId: string;\n  tokens: TokenPair;\n}\n\nconst sessions = new Map<string, Session>();\n\nexport async function getValidTokens(sessionId: string): Promise<TokenPair> {\n  const s = sessions.get(sessionId);\n  if (!s) throw new AuthError(\"ERR_SESSION_NOT_FOUND\");\n  if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\n  s.tokens = await refresh(s.tokens.refreshToken);\n  return s.tokens;\n}\n\nexport function putSession(sessionId: string, session: Session): void {\n  sessions.set(sessionId, session);\n}\n\nexport function dropSession(sessionId: string): void {\n  sessions.delete(sessionId);\n}\n\n/** Kiểm tra claim `region`/`iss` cho policy #0. */\nexport function sessionPolicy0(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  return (tokenPolicyA(a) && tokenPolicyB(b)) || (tokenPolicyC(a) && tokenPolicyD(b));\n}\n\nfunction tokenPolicyA(val: string): boolean {\n  return val.length > 0 && val.startsWith(\"vn-\");\n}\n\nfunction tokenPolicyB(val: string): boolean {\n  return val.length > 0 && val.endsWith(\"-auth\");\n}\n\nfunction tokenPolicyC(val: string): boolean {\n  return val.length > 0 && val.startsWith(\"sg-\");\n}\n\nfunction tokenPolicyD(val: string): boolean {\n  return val.length > 0 && val.endsWith(\"-sso\");\n}\n"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"write_file\", \"response\": {\"ok\": true, \"path\": \"src/session.ts\", \"bytes\": 1489}}]"
+ },
+ {
+  "i": 17,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 13,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "run_tests",
+    "args": {}
+   }
+  ],
+  "preview": "[{\"name\": \"run_tests\", \"args\": {}}]"
+ },
+ {
+  "i": 18,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 6237,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "run_tests",
+    "label": "KEEP",
+    "archive_id": "a018",
+    "args": {}
+   }
+  ],
+  "preview": "[{\"name\": \"run_tests\", \"response\": {\"ok\": true, \"exit_code\": 1, \"output\": \"> authsvc@1.0.0 test\\n> jest --verbose\\n\\nFAIL tests/auth.test.ts\\n  auth.refresh\\n    ✓ rotates refresh token (9 ms)\\n    ✕ concurrent refresh returns same token (36 ms)\\n    ✕ refresh after expiry (18 ms)\\n    ✕ parallel logout (20 ms)\\n    ✓ api: refresh signature is backward compatible (19 ms)\\n\\nPASS tests/session.test.ts\\n  session\\n    ✓ session case 1.0 handles input variant 752 (3 ms)\\n    ✓ session case 1.1 handles input variant 311 (15 ms)\\n    ✓ session case 1.2 handles input variant 407 (13 ms)\\n    ✓ session case 1.3 handles input variant 122 (9 ms)\\n  console.log\\n    [retry] refresh attempt=2 backoff=200ms\\n\\n      at Object.<anonymous> (src/session.ts:17:11)\\n\\n    ✓ session case 1.4 handles input variant 367 (26 ms)\\n  console.log\\n    [retry] refresh attempt=3 backoff=300ms\\n\\n      at Object.<anonymous> (src/session.ts:17:11)\\n\\n    ✓ session case 1.5 handles input variant 647 (17 ms)\\n  console.log\\n    [retry] refresh attempt=3 backoff=300ms\\n\\n      at Object.<anonymous> (src/session.ts:17:11)\\n\\n    ✓ session case 1.6 handles input variant 682 (22 ms)\\n  console.log\\n    [retry] refresh attempt=1 backoff=100ms\\n\\n      at Object.<anonymous> (src/session.ts:17:11)\\n\\n    ✓ session case 1.7 handles input variant 668 (3 ms)\\n  console.log\\n    [retry] refresh attempt=2 backoff=200ms\\n\\n      at Object.<anonymous> (src/session.ts:17:11)\\n\\n    ✓ session case 1.8 handles input varian"
+ },
+ {
+  "i": 19,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 18,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "list_files",
+    "args": {
+     "glob": "tests/**/*"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"list_files\", \"args\": {\"glob\": \"tests/**/*\"}}]"
+ },
+ {
+  "i": 20,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 23,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "list_files",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "glob": "tests/**/*"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"list_files\", \"response\": {\"ok\": true, \"count\": 0, \"files\": []}}]"
+ },
+ {
+  "i": 21,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 16,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "list_files",
+    "args": {
+     "glob": "*"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"list_files\", \"args\": {\"glob\": \"*\"}}]"
+ },
+ {
+  "i": 22,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 264,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "list_files",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "glob": "*"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"list_files\", \"response\": {\"ok\": true, \"count\": 39, \"files\": [\".env\", \"config/token.json\", \"logs/app-2026-09-01.log\", \"logs/app-2026-09-02.log\", \"logs/app-2026-09-03.log\", \"logs/app-2026-09-04.log\", \"logs/app-2026-09-05.log\", \"logs/app-2026-09-06.log\", \"logs/app-2026-09-07.log\", \"logs/app-2026-09-08.log\", \"logs/app-2026-09-09.log\", \"logs/app-2026-09-10.log\", \"logs/app-2026-09-11.log\", \"logs/app-2026-09-12.log\", \"logs/app-2026-09-13.log\", \"logs/app-2026-09-14.log\", \"logs/app-2026-09-15.log\", \"logs/app-2026-09-16.log\", \"logs/app-2026-09-17.log\", \"logs/app-2026-09-18.log\", \"logs/app-2026-09-19.log\", \"logs/app-2026-09-20.log\", \"logs/app-2026-09-21.log\", \"logs/app-2026-09-22.log\", \"logs/app-2026-09-23.log\", \"logs/app-2026-09-24.log\", \"logs/app-2026-09-25.log\", \"logs/app-2026-09-26.log\", \"logs/app-2026-09-27.log\", \"logs/app-2026-09-28.log\", \"logs/app-2026-09-29.log\", \"logs/app-2026-09-30.log\", \"package.json\", \"src/auth.ts\", \"src/config.ts\", \"src/session.ts\", \"src/tokenStore.ts\", \"src/utils.ts\", \"tests/auth.test.ts\"]}}]"
+ }
+]

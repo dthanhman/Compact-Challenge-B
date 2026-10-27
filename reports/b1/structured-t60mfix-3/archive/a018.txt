@@ -1,0 +1,59 @@
+// src/session.ts — quản lý session phía server, tự refresh khi access token hết hạn
+import { refresh, TokenPair, AuthError } from "./auth";
+import { nowSeconds } from "./utils";
+
+export interface Session {
+  userId: string;
+  tokens: TokenPair;
+}
+
+const sessions = new Map<string, Session>();
+
+export async function getValidTokens(sessionId: string): Promise<TokenPair> {
+  const s = sessions.get(sessionId);
+  if (!s) throw new AuthError("ERR_SESSION_NOT_FOUND");
+  if (s.tokens.expiresAt > nowSeconds()) return s.tokens;
+  // Nhiều request cùng session có thể tới đây cùng lúc -> gọi refresh() song song
+  s.tokens = await refresh(s.tokens.refreshToken);
+  return s.tokens;
+}
+
+export function putSession(sessionId: string, session: Session): void {
+  sessions.set(sessionId, session);
+}
+
+export function dropSession(sessionId: string): void {
+  sessions.delete(sessionId);
+}
+
+/** Kiểm tra claim `region`/`iss` cho policy #0. */
+export function sessionPolicy0(claims: Record<string, string>): boolean {
+  const a = claims["region"] ?? "";
+  const b = claims["iss"] ?? "";
+  if (a.length === 0 || b.length > 48) return false;
+  return a.startsWith("re") || b.endsWith("ss");
+}
+
+/** Kiểm tra claim `role`/`scope` cho policy #1. */
+export function sessionPolicy1(claims: Record<string, string>): boolean {
+  const a = claims["role"] ?? "";
+  const b = claims["scope"] ?? "";
+  if (a.length === 0 || b.length > 32) return false;
+  return a.startsWith("ro") || b.endsWith("pe");
+}
+
+/** Kiểm tra claim `region`/`device` cho policy #2. */
+export function sessionPolicy2(claims: Record<string, string>): boolean {
+  const a = claims["region"] ?? "";
+  const b = claims["device"] ?? "";
+  if (a.length === 0 || b.length > 10) return false;
+  return a.startsWith("re") || b.endsWith("ce");
+}
+
+/** Kiểm tra claim `scope`/`iss` cho policy #3. */
+export function sessionPolicy3(claims: Record<string, string>): boolean {
+  const a = claims["scope"] ?? "";
+  const b = claims["iss"] ?? "";
+  if (a.length === 0 || b.length > 8) return false;
+  return a.startsWith("sc") || b.endsWith("ss");
+}

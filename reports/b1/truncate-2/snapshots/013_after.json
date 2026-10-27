@@ -1,0 +1,48 @@
+[
+ {
+  "i": 0,
+  "role": "user",
+  "turn": 9,
+  "tokens": 42,
+  "checkpoint": false,
+  "preview": "Xem log ngày 2026-09-17 (logs/app-2026-09-17.log): lỗi ERR_TOKEN_REUSED có đi kèm các dòng retry refresh không? Có gì bất thường trong file đó không?"
+ },
+ {
+  "i": 1,
+  "role": "assistant",
+  "turn": 9,
+  "tokens": 30,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "read_file",
+    "args": {
+     "path": "logs/app-2026-09-17.log",
+     "end_line": 200,
+     "start_line": 1
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"args\": {\"path\": \"logs/app-2026-09-17.log\", \"end_line\": 200, \"start_line\": 1}}]"
+ },
+ {
+  "i": 2,
+  "role": "tool",
+  "turn": 9,
+  "tokens": 4089,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "read_file",
+    "label": "KEEP",
+    "archive_id": "a024",
+    "args": {
+     "path": "logs/app-2026-09-17.log",
+     "end_line": 200,
+     "start_line": 1
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"response\": {\"ok\": true, \"path\": \"logs/app-2026-09-17.log\", \"total_lines\": 201, \"start_line\": 1, \"end_line\": 200, \"content\": \"2026-09-17T00:00:00.721Z INFO  api - GET /api/users 200 37ms req=d8f892\\n2026-09-17T00:07:12.159Z ERROR api ERR_DB_TIMEOUT GET /api/users 500 194ms req=7c3988\\n2026-09-17T00:14:24.993Z WARN  auth - retry refresh attempt=1 backoff=100ms req=242e2f\\n2026-09-17T00:21:36.594Z INFO  api - GET /api/users 200 89ms req=5a6d9c\\n2026-09-17T00:28:48.161Z INFO  auth - POST /auth/logout 200 54ms req=08d8f1\\n2026-09-17T00:36:00.162Z WARN  auth - retry refresh attempt=2 backoff=200ms req=a58a3a\\n2026-09-17T00:43:12.524Z WARN  auth - retry refresh attempt=1 backoff=100ms req=d90d40\\n2026-09-17T00:50:24.098Z INFO  auth - POST /auth/login 200 72ms req=127c79\\n2026-09-17T00:57:36.921Z ERROR api ERR_DB_TIMEOUT GET /api/orders 500 260ms req=fcb1f6\\n2026-09-17T01:04:48.615Z ERROR api ERR_TOKEN_REUSED GET /api/orders 500 340ms req=5d5558\\n2026-09-17T01:12:00.049Z INFO  auth - POST /auth/refresh 200 52ms req=41acba\\n2026-09-17T01:19:12.915Z ERROR auth ERR_RATE_LIMITED POST /auth/login 429 235ms req=e45a8c\\n2026-09-17T01:26:24.730Z INFO  api - GET /api/users 200 60ms req=613608\\n2026-09-17T01:33:36.013Z INFO  api - GET /api/orders 200 160ms req=4567b1\\n2026-09-17T01:40:48.982Z INFO  auth - POST /auth/login 200 76ms req=73edde\\n2026-09-17T01:48:00.599Z INFO  auth - POST /auth/login 200 88ms req=c1eeac\\n2026-09-17T01:55:12.494Z INFO  payments - POST /api/p"
+ }
+]

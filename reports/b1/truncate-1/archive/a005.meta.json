@@ -1,0 +1,1 @@
+{"id": "a005", "tool": "grep", "args": {"pattern": "ERR_", "glob": "logs/app-2026-09-01.log"}, "chars": 5535}

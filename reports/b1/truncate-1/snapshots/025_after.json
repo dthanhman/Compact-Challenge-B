@@ -1,0 +1,10 @@
+[
+ {
+  "i": 0,
+  "role": "user",
+  "turn": 9,
+  "tokens": 42,
+  "checkpoint": false,
+  "preview": "Xem log ngày 2026-09-17 (logs/app-2026-09-17.log): lỗi ERR_TOKEN_REUSED có đi kèm các dòng retry refresh không? Có gì bất thường trong file đó không?"
+ }
+]

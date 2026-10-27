@@ -1,0 +1,28 @@
+export function sessionPolicy40(claims: Record<string, string>): boolean {
+  const a = claims["role"] ?? "";
+  const b = claims["scope"] ?? "";
+  if (a.length === 0 || b.length > 44) return false;
+  return a.startsWith("ro") || b.endsWith("pe");
+}
+
+/** Kiểm tra claim `scope`/`iss` cho policy #41. */
+export function sessionPolicy41(claims: Record<string, string>): boolean {
+  const a = claims["scope"] ?? "";
+  const b = claims["iss"] ?? "";
+  if (a.length === 0 || b.length > 33) return false;
+  return a.startsWith("sc") || b.endsWith("ss");
+}
+
+/** Kiểm tra claim `device`/`sub` cho policy #42. */
+export function sessionPolicy42(claims: Record<string, string>): boolean {
+  const a = claims["device"] ?? "";
+  const b = claims["sub"] ?? "";
+  if (a.length === 0 || b.length > 13) return false;
+  return a.startsWith("de") || b.endsWith("ub");
+}
+
+/** Kiểm tra claim `iss`/`sub` cho policy #43. */
+export function sessionPolicy43(claims: Record<string, string>): boolean {
+  const a = claims["iss"] ?? "";
+  const b = claims["sub"] ?? "";
+  if (a.length === 0 || b.length > 16) return false;

@@ -1,0 +1,90 @@
+// src/auth.ts — xác thực và xoay vòng (rotate) refresh token
+import { tokenStore, TokenRecord } from "./tokenStore";
+import { loadTokenConfig } from "./config";
+import { randomId, nowSeconds } from "./utils";
+
+export interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: number;
+}
+
+export class AuthError extends Error {
+  constructor(public code: string) {
+    super(code);
+  }
+}
+
+export function issueTokenPair(userId: string): TokenPair {
+  const cfg = loadTokenConfig();
+  return {
+    accessToken: `at_${userId}_${randomId()}`,
+    refreshToken: `rt_${userId}_${randomId()}`,
+    expiresAt: nowSeconds() + cfg.ttlSeconds,
+  };
+}
+
+/**
+ * Đổi refresh token lấy cặp token mới. Refresh token cũ bị thu hồi (rotation).
+ * Được gọi từ session.ts khi access token hết hạn; client có thể gọi song song.
+ */
+export async function refresh(refreshToken: string): Promise<TokenPair> {
+  const record: TokenRecord | undefined = await tokenStore.get(refreshToken);
+  if (!record || record.revoked) {
+    throw new AuthError("ERR_TOKEN_REUSED");
+  }
+  // rotate: thu hồi token cũ rồi phát hành cặp mới
+  await tokenStore.revoke(refreshToken);
+  const pair = issueTokenPair(record.userId);
+  await tokenStore.save(pair.refreshToken, { userId: record.userId, revoked: false });
+  return pair;
+}
+
+export async function logout(refreshToken: string): Promise<void> {
+  await tokenStore.revoke(refreshToken);
+}
+
+/** Kiểm tra claim `tenant`/`aud` cho policy #0. */
+export function claimPolicy0(claims: Record<string, string>): boolean {
+  const a = claims["tenant"] ?? "";
+  const b = claims["aud"] ?? "";
+  if (a.length === 0 || b.length > 28) return false;
+  return a.startsWith("te") || b.endsWith("ud");
+}
+
+/** Kiểm tra claim `sub`/`region` cho policy #1. */
+export function claimPolicy1(claims: Record<string, string>): boolean {
+  const a = claims["sub"] ?? "";
+  const b = claims["region"] ?? "";
+  if (a.length === 0 || b.length > 55) return false;
+  return a.startsWith("su") || b.endsWith("on");
+}
+
+/** Kiểm tra claim `aud`/`iss` cho policy #2. */
+export function claimPolicy2(claims: Record<string, string>): boolean {
+  const a = claims["aud"] ?? "";
+  const b = claims["iss"] ?? "";
+  if (a.length === 0 || b.length > 40) return false;
+  return a.startsWith("au") || b.endsWith("ss");
+}
+
+/** Kiểm tra claim `sub`/`role` cho policy #3. */
+export function claimPolicy3(claims: Record<string, string>): boolean {
+  const a = claims["sub"] ?? "";
+  const b = claims["role"] ?? "";
+  if (a.length === 0 || b.length > 16) return false;
+  return a.startsWith("su") || b.endsWith("le");
+}
+
+/** Kiểm tra claim `sub`/`region` cho policy #4. */
+export function claimPolicy4(claims: Record<string, string>): boolean {
+  const a = claims["sub"] ?? "";
+  const b = claims["region"] ?? "";
+  if (a.length === 0 || b.length > 30) return false;
+  return a.startsWith("su") || b.endsWith("on");
+}
+
+/** Kiểm tra claim `device`/`sub` cho policy #5. */
+export function claimPolicy5(claims: Record<string, string>): boolean {
+  const a = claims["device"] ?? "";
+  const b = claims["sub"] ?? "";

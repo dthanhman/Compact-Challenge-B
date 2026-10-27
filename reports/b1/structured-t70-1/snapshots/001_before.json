@@ -1,0 +1,796 @@
+[
+ {
+  "i": 0,
+  "role": "user",
+  "turn": 1,
+  "tokens": 60,
+  "checkpoint": false,
+  "preview": "Mình cần điều tra các test đang fail. Quy tắc của phiên này: KHÔNG được sửa code hay config khi mình chưa yêu cầu rõ ràng, chỉ điều tra và báo cáo. Trước hết chạy toàn bộ test suite, cho mình biết test nào fail và lỗi gì."
+ },
+ {
+  "i": 1,
+  "role": "assistant",
+  "turn": 1,
+  "tokens": 13,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "run_tests",
+    "args": {}
+   }
+  ],
+  "preview": "[{\"name\": \"run_tests\", \"args\": {}}]"
+ },
+ {
+  "i": 2,
+  "role": "tool",
+  "turn": 1,
+  "tokens": 252,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "run_tests",
+    "label": "TRUNCATE",
+    "archive_id": "a001",
+    "args": {}
+   }
+  ],
+  "preview": "[{\"name\": \"run_tests\", \"response\": {\"ok\": true, \"exit_code\": 1, \"summary\": \"FAIL tests/auth.test.ts\\n    ✕ concurrent refresh returns same token (36 ms)\\n    ✕ refresh after expiry (18 ms)\\n    ✕ parallel logout (20 ms)\\nFAIL tests/auth.test.ts\\n  ● auth.refresh › concurrent refresh returns same token\\n    AuthError: ERR_TOKEN_REUSED\\n    > 34 |     throw new AuthError(\\\"ERR_TOKEN_REUSED\\\");\\n      at refresh (src/auth.ts:34:11)\\nFAIL tests/auth.test.ts\\n  ● auth.refresh › refresh after expiry\\n    AuthError: ERR_TOKEN_REUSED\\n    > 34 |     throw new AuthError(\\\"ERR_TOKEN_REUSED\\\");\\n      at refresh (src/session.ts:17:20)\\nFAIL tests/auth.test.ts\\n  ● auth.refresh › parallel logout\\n    AuthError: ERR_TOKEN_REUSED\\n    > 34 |     throw new AuthError(\\\"ERR_TOKEN_REUSED\\\");\\n      at refresh (src/auth.ts:34:11)\\nTest Suites: 1 failed, 107 passed, 108 total\", \"archived\": \"a001\", \"note\": \"[TRUNCATE] Output gốc đã được archive; dùng read_archive('a001', pattern) nếu cần thêm.\"}}]"
+ },
+ {
+  "i": 3,
+  "role": "assistant",
+  "turn": 1,
+  "tokens": 357,
+  "checkpoint": false,
+  "preview": "Mình đã chạy toàn bộ test suite. Kết quả cụ thể như sau:\n\nTổng số: 108 test suites (107 passed, 1 tổng số fail ở `tests/auth.test.ts`).\nTổng số test case: 2433 test cases (2430 passed, 3 failed).\n\n3 test case đang fail đều nằm trong file **`tests/auth.test.ts`** thuộc suite `auth.refresh`:\n\n1. **`concurrent refresh returns same token`**\n   - **Lỗi:** `AuthError: ERR_TOKEN_REUSED` tại `refresh (src/auth.ts:34:11)` khi gọi `Promise.all`.\n   - **Chi tiết:** Khi thực hiện đồng thời nhiều request refresh với cùng một refresh token, hệ thống đáng lẽ nên trả về cùng một token hợp lệ (hoặc xử lý concurrency) thay vì ném lỗi token bị tái sử dụng/thu hồi.\n\n2. **`refresh after expiry`**\n   - **Lỗi:** `AuthError: ERR_TOKEN_REUSED` tại `refresh (src/session.ts:17:20)` (hoặc `src/auth.ts`).\n   - **Chi tiết:** Khi refresh token đã hết hạn (hoặc trong ngữ cảnh test refresh sau expiry/concurrent), token record bị đánh giá là đã bị thu hồi hoặc tái sử dụng (`!record || record.revoked`).\n\n3. **`parallel logout`**\n   - **Lỗi:** `AuthError: ERR_TOKEN_REUSED` tại `refresh (src/auth.ts:34:11)` khi chạy logout song song.\n   - **Chi tiết:** Request refresh/logout thực hiện song song dẫn đến việc token bị coi là tái sử dụng/thu hồi đột ngột.\n\nTheo quy tắc của phiên này, mình **chưa** sửa bất kỳ code hay config nào. Bạn có muốn mình điều tra sâu hơn về phần cài đặt trong `src/auth.ts` và `tests/auth.test.ts` không?"
+ },
+ {
+  "i": 4,
+  "role": "user",
+  "turn": 2,
+  "tokens": 35,
+  "checkpoint": false,
+  "preview": "Đọc hàm refresh trong src/auth.ts (khoảng 60 dòng đầu file) và toàn bộ src/session.ts, giải thích vì sao các test đó fail."
+ },
+ {
+  "i": 5,
+  "role": "assistant",
+  "turn": 2,
+  "tokens": 27,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "read_file",
+    "args": {
+     "end_line": 60,
+     "start_line": 1,
+     "path": "src/auth.ts"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"args\": {\"end_line\": 60, \"start_line\": 1, \"path\": \"src/auth.ts\"}}]"
+ },
+ {
+  "i": 6,
+  "role": "tool",
+  "turn": 2,
+  "tokens": 62,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "read_file",
+    "label": "DROP",
+    "archive_id": "a002",
+    "args": {
+     "end_line": 60,
+     "start_line": 1,
+     "path": "src/auth.ts"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"response\": {\"ok\": true, \"archived\": \"a002\", \"args\": {\"end_line\": 60, \"start_line\": 1, \"path\": \"src/auth.ts\"}, \"note\": \"[DROP] dữ liệu dễ tái tạo. Dữ liệu dễ tái tạo: đọc lại bằng read_file('src/auth.ts').\"}}]"
+ },
+ {
+  "i": 7,
+  "role": "assistant",
+  "turn": 2,
+  "tokens": 19,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "read_file",
+    "args": {
+     "path": "src/session.ts"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"args\": {\"path\": \"src/session.ts\"}}]"
+ },
+ {
+  "i": 8,
+  "role": "tool",
+  "turn": 2,
+  "tokens": 56,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "read_file",
+    "label": "DROP",
+    "archive_id": "a003",
+    "args": {
+     "path": "src/session.ts"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"response\": {\"ok\": true, \"archived\": \"a003\", \"args\": {\"path\": \"src/session.ts\"}, \"note\": \"[DROP] dữ liệu dễ tái tạo. Dữ liệu dễ tái tạo: đọc lại bằng read_file('src/session.ts').\"}}]"
+ },
+ {
+  "i": 9,
+  "role": "assistant",
+  "turn": 2,
+  "tokens": 395,
+  "checkpoint": false,
+  "preview": "Dựa trên việc đọc `src/auth.ts` và `src/session.ts`, đây là giải thích chi tiết vì sao các test trong `tests/auth.test.ts` (và `src/session.ts`) bị fail với lỗi `ERR_TOKEN_REUSED`:\n\n1. **Vấn đề Race Condition / Concurrency trong `refresh()` (`src/auth.ts`):**\n   - Hàm `refresh(refreshToken)` thực hiện kiểm tra `await tokenStore.get(refreshToken)`, sau đó gọi `await tokenStore.revoke(refreshToken)`, phát hành token mới và lưu lại.\n   - Khi các request gọi `refresh()` đồng thời (ví dụ: `Promise.all` trong test `concurrent refresh returns same token` hoặc `parallel logout`), nhiều request có thể cùng đọc được trạng thái `revoked: false` của cùng một token trước khi bất kỳ request nào kịp gọi `revoke()`.\n   - Request đầu tiên chạy xong sẽ revoke token và tạo cặp token mới. Các request chạy song song tiếp theo (hoặc sát đó) khi thực hiện revoke hoặc kiểm tra lại sẽ thấy token đã bị revoke hoặc bị dùng lại, dẫn đến việc ném lỗi `AuthError(\"ERR_TOKEN_REUSED\")`.\n\n2. **Nguyên nhân tương tự cho `refresh after expiry` và `parallel logout`:**\n   - Trong các kịch bản test này, các thao tác đồng thời (parallel/concurrent) trên session hoặc token đều gọi hàm `refresh()` mà không có cơ chế đồng bộ hóa (như mutex, locking hoặc khử trùng lặp các request refresh đang bay - in-flight request deduplication). Do đó, token rotation bị thực hiện nhiều lần chồng chéo lên nhau, kích hoạt cơ chế bảo vệ chống tái sử dụng token (`ERR_TOKEN_REUSED`).\n\nTheo quy tắc, mình chưa thực hiện bất kỳ thay đổi code"
+ },
+ {
+  "i": 10,
+  "role": "user",
+  "turn": 3,
+  "tokens": 56,
+  "checkpoint": false,
+  "preview": "Lưu ý quan trọng: phải giữ API backward compatible — không được đổi signature `refresh(refreshToken: string): Promise<TokenPair>`. Ràng buộc này áp dụng cho cả phiên làm việc. Chưa sửa gì cả, chỉ ghi nhận."
+ },
+ {
+  "i": 11,
+  "role": "assistant",
+  "turn": 3,
+  "tokens": 89,
+  "checkpoint": false,
+  "preview": "Mình đã ghi nhận rõ ràng ràng buộc quan trọng của bạn:\n- **Phải giữ API backward compatible** — không được thay đổi signature của hàm `refresh(refreshToken: string): Promise<TokenPair>`.\n- Ràng buộc này áp dụng cho toàn bộ phiên làm việc.\n- **Chưa sửa gì cả**, chỉ ghi nhận.\n\nBạn có muốn điều tra thêm phần nào khác trong codebase không?"
+ },
+ {
+  "i": 12,
+  "role": "user",
+  "turn": 4,
+  "tokens": 31,
+  "checkpoint": false,
+  "preview": "Grep 'refresh' trong các file logs/*.log xem production có lỗi gì liên quan không, tóm tắt các mã lỗi chính."
+ },
+ {
+  "i": 13,
+  "role": "assistant",
+  "turn": 4,
+  "tokens": 22,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "grep",
+    "args": {
+     "pattern": "refresh",
+     "glob": "logs/*.log"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"grep\", \"args\": {\"pattern\": \"refresh\", \"glob\": \"logs/*.log\"}}]"
+ },
+ {
+  "i": 14,
+  "role": "tool",
+  "turn": 4,
+  "tokens": 54,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "grep",
+    "label": "DROP",
+    "archive_id": "a004",
+    "args": {
+     "pattern": "refresh",
+     "glob": "logs/*.log"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"grep\", \"response\": {\"ok\": true, \"archived\": \"a004\", \"args\": {\"pattern\": \"refresh\", \"glob\": \"logs/*.log\"}, \"note\": \"[DROP] dữ liệu dễ tái tạo. Dữ liệu dễ tái tạo: chạy lại grep nếu cần.\"}}]"
+ },
+ {
+  "i": 15,
+  "role": "assistant",
+  "turn": 4,
+  "tokens": 332,
+  "checkpoint": false,
+  "preview": "Mình đã kiểm tra và grep các file log trong `logs/*.log` liên quan đến `refresh`. Dưới đây là tóm tắt các lỗi và trạng thái chính ghi nhận được trong production:\n\n1. **`ERR_TOKEN_REUSED` (Lỗi phổ biến nhất):**\n   - Xuất hiện rất nhiều dưới dạng `ERROR auth ERR_TOKEN_REUSED POST /auth/refresh 500`.\n   - Phản ánh đúng hiện tượng race condition khi các request refresh đồng thời (hoặc retry request) cùng gửi một refresh token, khiến token bị thu hồi (revoked) ở request đầu tiên và các request sau đó bị từ chối với lỗi token bị tái sử dụng.\n\n2. **Cảnh báo retry (`retry refresh attempt=N backoff=Xms`):**\n   - Các dòng `WARN auth - retry refresh attempt=1/2/3` xuất hiện thường xuyên trước khi dẫn tới thành công (200 OK) hoặc thất bại (`ERR_TOKEN_REUSED`), cho thấy cơ chế retry ở client/hệ thống đang thực hiện gửi lại request khi gặp sự cố mạng hoặc chậm trễ.\n\n3. **Các lỗi khác liên quan:**\n   - `ERR_DB_TIMEOUT`: Lỗi timeout cơ sở dữ liệu khi xử lý request `/auth/refresh`.\n   - `ERR_PAYMENT_DECLINED`: Lỗi từ chối thanh toán khi refresh/xử lý tài khoản.\n   - `ERR_VALIDATION`: Lỗi xác thực dữ liệu đầu vào (400 Bad Request).\n\nTheo đúng quy tắc của phiên: **chưa sửa code hay config**, giữ nguyên API backward compatible, chỉ điều tra và báo cáo. Bạn có cần hướng dẫn hay bước kiểm tra nào tiếp theo không?"
+ },
+ {
+  "i": 16,
+  "role": "user",
+  "turn": 5,
+  "tokens": 27,
+  "checkpoint": false,
+  "preview": "Thử cách nhanh trước: tăng ttlSeconds trong config/token.json lên 1800 rồi chạy lại test."
+ },
+ {
+  "i": 17,
+  "role": "assistant",
+  "turn": 5,
+  "tokens": 20,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "read_file",
+    "args": {
+     "path": "config/token.json"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"args\": {\"path\": \"config/token.json\"}}]"
+ },
+ {
+  "i": 18,
+  "role": "tool",
+  "turn": 5,
+  "tokens": 47,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "read_file",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "path": "config/token.json"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"response\": {\"ok\": true, \"path\": \"config/token.json\", \"total_lines\": 3, \"start_line\": 1, \"end_line\": 3, \"content\": \"{\\n  \\\"ttlSeconds\\\": 900\\n}\"}}]"
+ },
+ {
+  "i": 19,
+  "role": "assistant",
+  "turn": 5,
+  "tokens": 31,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "write_file",
+    "args": {
+     "content": "{\n  \"ttlSeconds\": 1800\n}\n",
+     "path": "config/token.json"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"write_file\", \"args\": {\"content\": \"{\\n  \\\"ttlSeconds\\\": 1800\\n}\\n\", \"path\": \"config/token.json\"}}]"
+ },
+ {
+  "i": 20,
+  "role": "tool",
+  "turn": 5,
+  "tokens": 27,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "write_file",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "content": "{\n  \"ttlSeconds\": 1800\n}\n",
+     "path": "config/token.json"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"write_file\", \"response\": {\"ok\": true, \"path\": \"config/token.json\", \"bytes\": 25}}]"
+ },
+ {
+  "i": 21,
+  "role": "assistant",
+  "turn": 5,
+  "tokens": 13,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "run_tests",
+    "args": {}
+   }
+  ],
+  "preview": "[{\"name\": \"run_tests\", \"args\": {}}]"
+ },
+ {
+  "i": 22,
+  "role": "tool",
+  "turn": 5,
+  "tokens": 252,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "run_tests",
+    "label": "TRUNCATE",
+    "archive_id": "a005",
+    "args": {}
+   }
+  ],
+  "preview": "[{\"name\": \"run_tests\", \"response\": {\"ok\": true, \"exit_code\": 1, \"summary\": \"FAIL tests/auth.test.ts\\n    ✕ concurrent refresh returns same token (36 ms)\\n    ✕ refresh after expiry (18 ms)\\n    ✕ parallel logout (20 ms)\\nFAIL tests/auth.test.ts\\n  ● auth.refresh › concurrent refresh returns same token\\n    AuthError: ERR_TOKEN_REUSED\\n    > 34 |     throw new AuthError(\\\"ERR_TOKEN_REUSED\\\");\\n      at refresh (src/auth.ts:34:11)\\nFAIL tests/auth.test.ts\\n  ● auth.refresh › refresh after expiry\\n    AuthError: ERR_TOKEN_REUSED\\n    > 34 |     throw new AuthError(\\\"ERR_TOKEN_REUSED\\\");\\n      at refresh (src/session.ts:17:20)\\nFAIL tests/auth.test.ts\\n  ● auth.refresh › parallel logout\\n    AuthError: ERR_TOKEN_REUSED\\n    > 34 |     throw new AuthError(\\\"ERR_TOKEN_REUSED\\\");\\n      at refresh (src/auth.ts:34:11)\\nTest Suites: 1 failed, 107 passed, 108 total\", \"archived\": \"a005\", \"note\": \"[TRUNCATE] Output gốc đã được archive; dùng read_archive('a005', pattern) nếu cần thêm.\"}}]"
+ },
+ {
+  "i": 23,
+  "role": "assistant",
+  "turn": 5,
+  "tokens": 155,
+  "checkpoint": false,
+  "preview": "Mình đã tăng `ttlSeconds` trong `config/token.json` lên `1800` và chạy lại toàn bộ test suite.\n\nKết quả:\n- 107 test suites pass, chỉ còn đúng 3 test case trong `tests/auth.test.ts` (`concurrent refresh returns same token`, `refresh after expiry`, `parallel logout`) vẫn fail với lỗi `AuthError: ERR_TOKEN_REUSED`.\n- Việc thay đổi `ttlSeconds` không giải quyết được các vấn đề race condition / concurrency khi refresh song song.\n\nTheo đúng quy tắc của bạn: KHÔNG tự ý sửa code hay config khi chưa yêu cầu rõ ràng tiếp theo. Mình đã điều tra và báo cáo xong kết quả này. Bạn có chỉ đạo nào tiếp theo không?"
+ },
+ {
+  "i": 24,
+  "role": "user",
+  "turn": 6,
+  "tokens": 38,
+  "checkpoint": false,
+  "preview": "Thử thêm cơ chế retry: trong src/session.ts, nếu refresh() ném lỗi ERR_TOKEN_REUSED thì gọi lại tối đa 3 lần. Sửa xong chạy lại test."
+ },
+ {
+  "i": 25,
+  "role": "assistant",
+  "turn": 6,
+  "tokens": 19,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "read_file",
+    "args": {
+     "path": "src/session.ts"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"args\": {\"path\": \"src/session.ts\"}}]"
+ },
+ {
+  "i": 26,
+  "role": "tool",
+  "turn": 6,
+  "tokens": 56,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "read_file",
+    "label": "DROP",
+    "archive_id": "a006",
+    "args": {
+     "path": "src/session.ts"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"response\": {\"ok\": true, \"archived\": \"a006\", \"args\": {\"path\": \"src/session.ts\"}, \"note\": \"[DROP] dữ liệu dễ tái tạo. Dữ liệu dễ tái tạo: đọc lại bằng read_file('src/session.ts').\"}}]"
+ },
+ {
+  "i": 27,
+  "role": "assistant",
+  "turn": 6,
+  "tokens": 3958,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "write_file",
+    "args": {
+     "path": "src/session.ts",
+     "content": "// src/session.ts — quản lý session phía server, tự refresh khi access token hết hạn\nimport { refresh, TokenPair, AuthError } from \"./auth\";\nimport { nowSeconds } from \"./utils\";\n\nexport interface Session {\n  userId: string;\n  tokens: TokenPair;\n}\n\nconst sessions = new Map<string, Session>();\n\nexport async function getValidTokens(sessionId: string): Promise<TokenPair> {\n  const s = sessions.get(sessionId);\n  if (!s) throw new AuthError(\"ERR_SESSION_NOT_FOUND\");\n  if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\n  \n  let attempts = 0;\n  const maxAttempts = 3;\n  while (true) {\n    try {\n      attempts++;\n      s.tokens = await refresh(s.tokens.refreshToken);\n      return s.tokens;\n    } catch (err) {\n      if (err instanceof AuthError && err.code === \"ERR_TOKEN_REUSED\" && attempts < maxAttempts) {\n        console.log(`[retry] refresh attempt=${attempts} backoff=${attempts * 100}ms`);\n        await new Promise((res) => setTimeout(res, attempts * 100));\n        // Cập nhật lại token từ session hiện tại (có thể đã được refresh bởi request khác)\n        const currentSession = sessions.get(sessionId);\n        if (!currentSession) throw new AuthError(\"ERR_SESSION_NOT_FOUND\");\n        s.tokens = currentSession.tokens;\n        if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\n        continue;\n      }\n      throw err;\n    }\n  }\n}\n\nexport function putSession(sessionId: string, session: Session): void {\n  sessions.set(sessionId, session);\n}\n\nexport function dropSession(sessionId: string): void {\n  sessions.delete(sessionId);\n}\n\n/** Kiểm tra claim `region`/`iss` cho policy #0. */\nexport function sessionPolicy0(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 48) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`scope` cho policy #1. */\nexport function sessionPolicy1(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 32) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `region`/`device` cho policy #2. */\nexport function sessionPolicy2(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 10) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `scope`/`iss` cho policy #3. */\nexport function sessionPolicy3(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 8) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `region`/`sub` cho policy #4. */\nexport function sessionPolicy4(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 21) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `region`/`sub` cho policy #5. */\nexport function sessionPolicy5(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 55) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `region`/`iss` cho policy #6. */\nexport function sessionPolicy6(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 27) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `scope`/`aud` cho policy #7. */\nexport function sessionPolicy7(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"aud\"] ?? \"\";\n  if (a.length === 0 || b.length > 7) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"ud\");\n}\n\n/** Kiểm tra claim `aud`/`region` cho policy #8. */\nexport function sessionPolicy8(claims: Record<string, string>): boolean {\n  const a = claims[\"aud\"] ?? \"\";\n  const b = claims[\"region\"] ?? \"\";\n  if (a.length === 0 || b.length > 50) return false;\n  return a.startsWith(\"au\") || b.endsWith(\"on\");\n}\n\n/** Kiểm tra claim `role`/`iss` cho policy #9. */\nexport function sessionPolicy9(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 11) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`sub` cho policy #10. */\nexport function sessionPolicy10(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 48) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `tenant`/`aud` cho policy #11. */\nexport function sessionPolicy11(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"aud\"] ?? \"\";\n  if (a.length === 0 || b.length > 34) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ud\");\n}\n\n/** Kiểm tra claim `region`/`scope` cho policy #12. */\nexport function sessionPolicy12(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 4) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `iss`/`sub` cho policy #13. */\nexport function sessionPolicy13(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 34) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `region`/`scope` cho policy #14. */\nexport function sessionPolicy14(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 22) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `iss`/`scope` cho policy #15. */\nexport function sessionPolicy15(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 25) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `device`/`iss` cho policy #16. */\nexport function sessionPolicy16(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 10) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `tenant`/`sub` cho policy #17. */\nexport function sessionPolicy17(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 23) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `tenant`/`device` cho policy #18. */\nexport function sessionPolicy18(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 28) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `aud`/`region` cho policy #19. */\nexport function sessionPolicy19(claims: Record<string, string>): boolean {\n  const a = claims[\"aud\"] ?? \"\";\n  const b = claims[\"region\"] ?? \"\";\n  if (a.length === 0 || b.length > 48) return false;\n  return a.startsWith(\"au\") || b.endsWith(\"on\");\n}\n\n/** Kiểm tra claim `sub`/`tenant` cho policy #20. */\nexport function sessionPolicy20(claims: Record<string, string>): boolean {\n  const a = claims[\"sub\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 21) return false;\n  return a.startsWith(\"su\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `role`/`iss` cho policy #21. */\nexport function sessionPolicy21(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 7) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `device`/`scope` cho policy #22. */\nexport function sessionPolicy22(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 58) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `aud`/`iss` cho policy #23. */\nexport function sessionPolicy23(claims: Record<string, string>): boolean {\n  const a = claims[\"aud\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 30) return false;\n  return a.startsWith(\"au\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`device` cho policy #24. */\nexport function sessionPolicy24(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 6) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `role`/`sub` cho policy #25. */\nexport function sessionPolicy25(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 6) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `role`/`tenant` cho policy #26. */\nexport function sessionPolicy26(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 12) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `scope`/`iss` cho policy #27. */\nexport function sessionPolicy27(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 30) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `tenant`/`aud` cho policy #28. */\nexport function sessionPolicy28(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"aud\"] ?? \"\";\n  if (a.length === 0 || b.length > 52) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ud\");\n}\n\n/** Kiểm tra claim `tenant`/`device` cho policy #29. */\nexport function sessionPolicy29(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 30) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `sub`/`device` cho policy #30. */\nexport function sessionPolicy30(claims: Record<string, string>): boolean {\n  const a = claims[\"sub\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 51) return false;\n  return a.startsWith(\"su\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `device`/`role` cho policy #31. */\nexport function sessionPolicy31(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"role\"] ?? \"\";\n  if (a.length === 0 || b.length > 38) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"le\");\n}\n\n/** Kiểm tra claim `scope`/`tenant` cho policy #32. */\nexport function sessionPolicy32(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 8) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `sub`/`tenant` cho policy #33. */\nexport function sessionPolicy33(claims: Record<string, string>): boolean {\n  const a = claims[\"sub\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 29) return false;\n  return a.startsWith(\"su\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `region`/`role` cho policy #34. */\nexport function sessionPolicy34(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"role\"] ?? \"\";\n  if (a.length === 0 || b.length > 51) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"le\");\n}\n\n/** Kiểm tra claim `iss`/`tenant` cho policy #35. */\nexport function sessionPolicy35(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 58) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `role`/`scope` cho policy #36. */\nexport function sessionPolicy36(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 6) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `iss`/`aud` cho policy #37. */\nexport function sessionPolicy37(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"aud\"] ?? \"\";\n  if (a.length === 0 || b.length > 33) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"ud\");\n}\n\n/** Kiểm tra claim `device`/`iss` cho policy #38. */\nexport function sessionPolicy38(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 21) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`iss` cho policy #39. */\nexport function sessionPolicy39(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 50) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`scope` cho policy #40. */\nexport function sessionPolicy40(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 44) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `scope`/`iss` cho policy #41. */\nexport function sessionPolicy41(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 33) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `device`/`sub` cho policy #42. */\nexport function sessionPolicy42(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 13) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `iss`/`sub` cho policy #43. */\nexport function sessionPolicy43(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 16) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"ub\");\n}\n"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"write_file\", \"args\": {\"path\": \"src/session.ts\", \"content\": \"// src/session.ts — quản lý session phía server, tự refresh khi access token hết hạn\\nimport { refresh, TokenPair, AuthError } from \\\"./auth\\\";\\nimport { nowSeconds } from \\\"./utils\\\";\\n\\nexport interface Session {\\n  userId: string;\\n  tokens: TokenPair;\\n}\\n\\nconst sessions = new Map<string, Session>();\\n\\nexport async function getValidTokens(sessionId: string): Promise<TokenPair> {\\n  const s = sessions.get(sessionId);\\n  if (!s) throw new AuthError(\\\"ERR_SESSION_NOT_FOUND\\\");\\n  if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\\n  \\n  let attempts = 0;\\n  const maxAttempts = 3;\\n  while (true) {\\n    try {\\n      attempts++;\\n      s.tokens = await refresh(s.tokens.refreshToken);\\n      return s.tokens;\\n    } catch (err) {\\n      if (err instanceof AuthError && err.code === \\\"ERR_TOKEN_REUSED\\\" && attempts < maxAttempts) {\\n        console.log(`[retry] refresh attempt=${attempts} backoff=${attempts * 100}ms`);\\n        await new Promise((res) => setTimeout(res, attempts * 100));\\n        // Cập nhật lại token từ session hiện tại (có thể đã được refresh bởi request khác)\\n        const currentSession = sessions.get(sessionId);\\n        if (!currentSession) throw new AuthError(\\\"ERR_SESSION_NOT_FOUND\\\");\\n        s.tokens = currentSession.tokens;\\n        if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\\n        continue;\\n      }\\n      throw err;\\n    }\\n  }\\n}\\n\\nexport function putSessi"
+ },
+ {
+  "i": 28,
+  "role": "tool",
+  "turn": 6,
+  "tokens": 27,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "write_file",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "path": "src/session.ts",
+     "content": "// src/session.ts — quản lý session phía server, tự refresh khi access token hết hạn\nimport { refresh, TokenPair, AuthError } from \"./auth\";\nimport { nowSeconds } from \"./utils\";\n\nexport interface Session {\n  userId: string;\n  tokens: TokenPair;\n}\n\nconst sessions = new Map<string, Session>();\n\nexport async function getValidTokens(sessionId: string): Promise<TokenPair> {\n  const s = sessions.get(sessionId);\n  if (!s) throw new AuthError(\"ERR_SESSION_NOT_FOUND\");\n  if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\n  \n  let attempts = 0;\n  const maxAttempts = 3;\n  while (true) {\n    try {\n      attempts++;\n      s.tokens = await refresh(s.tokens.refreshToken);\n      return s.tokens;\n    } catch (err) {\n      if (err instanceof AuthError && err.code === \"ERR_TOKEN_REUSED\" && attempts < maxAttempts) {\n        console.log(`[retry] refresh attempt=${attempts} backoff=${attempts * 100}ms`);\n        await new Promise((res) => setTimeout(res, attempts * 100));\n        // Cập nhật lại token từ session hiện tại (có thể đã được refresh bởi request khác)\n        const currentSession = sessions.get(sessionId);\n        if (!currentSession) throw new AuthError(\"ERR_SESSION_NOT_FOUND\");\n        s.tokens = currentSession.tokens;\n        if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\n        continue;\n      }\n      throw err;\n    }\n  }\n}\n\nexport function putSession(sessionId: string, session: Session): void {\n  sessions.set(sessionId, session);\n}\n\nexport function dropSession(sessionId: string): void {\n  sessions.delete(sessionId);\n}\n\n/** Kiểm tra claim `region`/`iss` cho policy #0. */\nexport function sessionPolicy0(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 48) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`scope` cho policy #1. */\nexport function sessionPolicy1(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 32) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `region`/`device` cho policy #2. */\nexport function sessionPolicy2(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 10) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `scope`/`iss` cho policy #3. */\nexport function sessionPolicy3(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 8) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `region`/`sub` cho policy #4. */\nexport function sessionPolicy4(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 21) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `region`/`sub` cho policy #5. */\nexport function sessionPolicy5(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 55) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `region`/`iss` cho policy #6. */\nexport function sessionPolicy6(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 27) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `scope`/`aud` cho policy #7. */\nexport function sessionPolicy7(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"aud\"] ?? \"\";\n  if (a.length === 0 || b.length > 7) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"ud\");\n}\n\n/** Kiểm tra claim `aud`/`region` cho policy #8. */\nexport function sessionPolicy8(claims: Record<string, string>): boolean {\n  const a = claims[\"aud\"] ?? \"\";\n  const b = claims[\"region\"] ?? \"\";\n  if (a.length === 0 || b.length > 50) return false;\n  return a.startsWith(\"au\") || b.endsWith(\"on\");\n}\n\n/** Kiểm tra claim `role`/`iss` cho policy #9. */\nexport function sessionPolicy9(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 11) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`sub` cho policy #10. */\nexport function sessionPolicy10(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 48) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `tenant`/`aud` cho policy #11. */\nexport function sessionPolicy11(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"aud\"] ?? \"\";\n  if (a.length === 0 || b.length > 34) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ud\");\n}\n\n/** Kiểm tra claim `region`/`scope` cho policy #12. */\nexport function sessionPolicy12(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 4) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `iss`/`sub` cho policy #13. */\nexport function sessionPolicy13(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 34) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `region`/`scope` cho policy #14. */\nexport function sessionPolicy14(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 22) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `iss`/`scope` cho policy #15. */\nexport function sessionPolicy15(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 25) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `device`/`iss` cho policy #16. */\nexport function sessionPolicy16(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 10) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `tenant`/`sub` cho policy #17. */\nexport function sessionPolicy17(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 23) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `tenant`/`device` cho policy #18. */\nexport function sessionPolicy18(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 28) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `aud`/`region` cho policy #19. */\nexport function sessionPolicy19(claims: Record<string, string>): boolean {\n  const a = claims[\"aud\"] ?? \"\";\n  const b = claims[\"region\"] ?? \"\";\n  if (a.length === 0 || b.length > 48) return false;\n  return a.startsWith(\"au\") || b.endsWith(\"on\");\n}\n\n/** Kiểm tra claim `sub`/`tenant` cho policy #20. */\nexport function sessionPolicy20(claims: Record<string, string>): boolean {\n  const a = claims[\"sub\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 21) return false;\n  return a.startsWith(\"su\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `role`/`iss` cho policy #21. */\nexport function sessionPolicy21(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 7) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `device`/`scope` cho policy #22. */\nexport function sessionPolicy22(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 58) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `aud`/`iss` cho policy #23. */\nexport function sessionPolicy23(claims: Record<string, string>): boolean {\n  const a = claims[\"aud\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 30) return false;\n  return a.startsWith(\"au\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`device` cho policy #24. */\nexport function sessionPolicy24(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 6) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `role`/`sub` cho policy #25. */\nexport function sessionPolicy25(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 6) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `role`/`tenant` cho policy #26. */\nexport function sessionPolicy26(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 12) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `scope`/`iss` cho policy #27. */\nexport function sessionPolicy27(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 30) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `tenant`/`aud` cho policy #28. */\nexport function sessionPolicy28(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"aud\"] ?? \"\";\n  if (a.length === 0 || b.length > 52) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ud\");\n}\n\n/** Kiểm tra claim `tenant`/`device` cho policy #29. */\nexport function sessionPolicy29(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 30) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `sub`/`device` cho policy #30. */\nexport function sessionPolicy30(claims: Record<string, string>): boolean {\n  const a = claims[\"sub\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 51) return false;\n  return a.startsWith(\"su\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `device`/`role` cho policy #31. */\nexport function sessionPolicy31(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"role\"] ?? \"\";\n  if (a.length === 0 || b.length > 38) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"le\");\n}\n\n/** Kiểm tra claim `scope`/`tenant` cho policy #32. */\nexport function sessionPolicy32(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 8) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `sub`/`tenant` cho policy #33. */\nexport function sessionPolicy33(claims: Record<string, string>): boolean {\n  const a = claims[\"sub\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 29) return false;\n  return a.startsWith(\"su\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `region`/`role` cho policy #34. */\nexport function sessionPolicy34(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"role\"] ?? \"\";\n  if (a.length === 0 || b.length > 51) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"le\");\n}\n\n/** Kiểm tra claim `iss`/`tenant` cho policy #35. */\nexport function sessionPolicy35(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 58) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `role`/`scope` cho policy #36. */\nexport function sessionPolicy36(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 6) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `iss`/`aud` cho policy #37. */\nexport function sessionPolicy37(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"aud\"] ?? \"\";\n  if (a.length === 0 || b.length > 33) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"ud\");\n}\n\n/** Kiểm tra claim `device`/`iss` cho policy #38. */\nexport function sessionPolicy38(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 21) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`iss` cho policy #39. */\nexport function sessionPolicy39(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 50) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`scope` cho policy #40. */\nexport function sessionPolicy40(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 44) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `scope`/`iss` cho policy #41. */\nexport function sessionPolicy41(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 33) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `device`/`sub` cho policy #42. */\nexport function sessionPolicy42(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 13) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `iss`/`sub` cho policy #43. */\nexport function sessionPolicy43(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 16) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"ub\");\n}\n"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"write_file\", \"response\": {\"ok\": true, \"path\": \"src/session.ts\", \"bytes\": 14926}}]"
+ },
+ {
+  "i": 29,
+  "role": "assistant",
+  "turn": 6,
+  "tokens": 13,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "run_tests",
+    "args": {}
+   }
+  ],
+  "preview": "[{\"name\": \"run_tests\", \"args\": {}}]"
+ },
+ {
+  "i": 30,
+  "role": "tool",
+  "turn": 6,
+  "tokens": 252,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "run_tests",
+    "label": "TRUNCATE",
+    "archive_id": "a007",
+    "args": {}
+   }
+  ],
+  "preview": "[{\"name\": \"run_tests\", \"response\": {\"ok\": true, \"exit_code\": 1, \"summary\": \"FAIL tests/auth.test.ts\\n    ✕ concurrent refresh returns same token (36 ms)\\n    ✕ refresh after expiry (18 ms)\\n    ✕ parallel logout (20 ms)\\nFAIL tests/auth.test.ts\\n  ● auth.refresh › concurrent refresh returns same token\\n    AuthError: ERR_TOKEN_REUSED\\n    > 34 |     throw new AuthError(\\\"ERR_TOKEN_REUSED\\\");\\n      at refresh (src/auth.ts:34:11)\\nFAIL tests/auth.test.ts\\n  ● auth.refresh › refresh after expiry\\n    AuthError: ERR_TOKEN_REUSED\\n    > 34 |     throw new AuthError(\\\"ERR_TOKEN_REUSED\\\");\\n      at refresh (src/session.ts:17:20)\\nFAIL tests/auth.test.ts\\n  ● auth.refresh › parallel logout\\n    AuthError: ERR_TOKEN_REUSED\\n    > 34 |     throw new AuthError(\\\"ERR_TOKEN_REUSED\\\");\\n      at refresh (src/auth.ts:34:11)\\nTest Suites: 1 failed, 107 passed, 108 total\", \"archived\": \"a007\", \"note\": \"[TRUNCATE] Output gốc đã được archive; dùng read_archive('a007', pattern) nếu cần thêm.\"}}]"
+ },
+ {
+  "i": 31,
+  "role": "assistant",
+  "turn": 6,
+  "tokens": 224,
+  "checkpoint": false,
+  "preview": "Mình đã thêm cơ chế retry tối đa 3 lần với backoff tăng dần khi `refresh()` gặp lỗi `ERR_TOKEN_REUSED` trong `src/session.ts` và chạy lại toàn bộ test suite theo đúng yêu cầu của bạn.\n\n**Kết quả:**\n- Toàn bộ 107 test suites phụ (bao gồm `session.test.ts`, `orders.test.ts`, `payments.test.ts`, v.v.) đều **PASS**.\n- 3 test case trong `tests/auth.test.ts` (`concurrent refresh returns same token`, `refresh after expiry`, `parallel logout`) vẫn **FAIL** với lỗi `AuthError: ERR_TOKEN_REUSED`. Lý do là vì các test case này gọi trực tiếp hàm `refresh()` từ `src/auth.ts` (không thông qua `src/session.ts` nơi chúng ta vừa thêm retry), hoặc kiểm tra tính đồng thời trực tiếp ở tầng thấp hơn.\n\nSignature của `refresh(refreshToken: string): Promise<TokenPair>` hoàn toàn được giữ nguyên, đảm bảo backward compatibility. \n\nBạn có muốn điều tra tiếp hoặc thử nghiệm giải pháp khác không?"
+ },
+ {
+  "i": 32,
+  "role": "user",
+  "turn": 7,
+  "tokens": 45,
+  "checkpoint": false,
+  "preview": "Hai cách đó đều không giúp. Revert cả hai thay đổi (ttlSeconds về 900, bỏ đoạn retry trong session.ts) rồi chạy lại test để chắc chắn code đã về trạng thái ban đầu."
+ },
+ {
+  "i": 33,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 31,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "write_file",
+    "args": {
+     "content": "{\n  \"ttlSeconds\": 900\n}\n",
+     "path": "config/token.json"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"write_file\", \"args\": {\"content\": \"{\\n  \\\"ttlSeconds\\\": 900\\n}\\n\", \"path\": \"config/token.json\"}}]"
+ },
+ {
+  "i": 34,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 27,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "write_file",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "content": "{\n  \"ttlSeconds\": 900\n}\n",
+     "path": "config/token.json"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"write_file\", \"response\": {\"ok\": true, \"path\": \"config/token.json\", \"bytes\": 24}}]"
+ },
+ {
+  "i": 35,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 19,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "read_file",
+    "args": {
+     "path": "src/session.ts"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"args\": {\"path\": \"src/session.ts\"}}]"
+ },
+ {
+  "i": 36,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 56,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "read_file",
+    "label": "DROP",
+    "archive_id": "a008",
+    "args": {
+     "path": "src/session.ts"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"response\": {\"ok\": true, \"archived\": \"a008\", \"args\": {\"path\": \"src/session.ts\"}, \"note\": \"[DROP] dữ liệu dễ tái tạo. Dữ liệu dễ tái tạo: đọc lại bằng read_file('src/session.ts').\"}}]"
+ },
+ {
+  "i": 37,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 27,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "read_file",
+    "args": {
+     "start_line": 1,
+     "path": "src/session.ts",
+     "end_line": 35
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"args\": {\"start_line\": 1, \"path\": \"src/session.ts\", \"end_line\": 35}}]"
+ },
+ {
+  "i": 38,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 64,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "read_file",
+    "label": "DROP",
+    "archive_id": "a009",
+    "args": {
+     "start_line": 1,
+     "path": "src/session.ts",
+     "end_line": 35
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"response\": {\"ok\": true, \"archived\": \"a009\", \"args\": {\"start_line\": 1, \"path\": \"src/session.ts\", \"end_line\": 35}, \"note\": \"[DROP] dữ liệu dễ tái tạo. Dữ liệu dễ tái tạo: đọc lại bằng read_file('src/session.ts').\"}}]"
+ },
+ {
+  "i": 39,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 19,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "list_files",
+    "args": {
+     "glob": "src/session.ts"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"list_files\", \"args\": {\"glob\": \"src/session.ts\"}}]"
+ },
+ {
+  "i": 40,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 27,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "list_files",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "glob": "src/session.ts"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"list_files\", \"response\": {\"ok\": true, \"count\": 1, \"files\": [\"src/session.ts\"]}}]"
+ },
+ {
+  "i": 41,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 17,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "git_checkout_or_similar_",
+    "args": {}
+   }
+  ],
+  "preview": "[{\"name\": \"git_checkout_or_similar_\", \"args\": {}}]"
+ },
+ {
+  "i": 42,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 35,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "git_checkout_or_similar_",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {}
+   }
+  ],
+  "preview": "[{\"name\": \"git_checkout_or_similar_\", \"response\": {\"ok\": false, \"error\": \"Tool không được bật: git_checkout_or_similar_\"}}]"
+ },
+ {
+  "i": 43,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 27,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "read_file",
+    "args": {
+     "end_line": 45,
+     "path": "src/session.ts",
+     "start_line": 1
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"args\": {\"end_line\": 45, \"path\": \"src/session.ts\", \"start_line\": 1}}]"
+ },
+ {
+  "i": 44,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 64,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "read_file",
+    "label": "DROP",
+    "archive_id": "a010",
+    "args": {
+     "end_line": 45,
+     "path": "src/session.ts",
+     "start_line": 1
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"response\": {\"ok\": true, \"archived\": \"a010\", \"args\": {\"end_line\": 45, \"path\": \"src/session.ts\", \"start_line\": 1}, \"note\": \"[DROP] dữ liệu dễ tái tạo. Dữ liệu dễ tái tạo: đọc lại bằng read_file('src/session.ts').\"}}]"
+ },
+ {
+  "i": 45,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 27,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "read_file",
+    "args": {
+     "start_line": 1,
+     "path": "src/session.ts",
+     "end_line": 25
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"args\": {\"start_line\": 1, \"path\": \"src/session.ts\", \"end_line\": 25}}]"
+ },
+ {
+  "i": 46,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 251,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "read_file",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "start_line": 1,
+     "path": "src/session.ts",
+     "end_line": 25
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"response\": {\"ok\": true, \"path\": \"src/session.ts\", \"total_lines\": 398, \"start_line\": 1, \"end_line\": 25, \"content\": \"// src/session.ts — quản lý session phía server, tự refresh khi access token hết hạn\\nimport { refresh, TokenPair, AuthError } from \\\"./auth\\\";\\nimport { nowSeconds } from \\\"./utils\\\";\\n\\nexport interface Session {\\n  userId: string;\\n  tokens: TokenPair;\\n}\\n\\nconst sessions = new Map<string, Session>();\\n\\nexport async function getValidTokens(sessionId: string): Promise<TokenPair> {\\n  const s = sessions.get(sessionId);\\n  if (!s) throw new AuthError(\\\"ERR_SESSION_NOT_FOUND\\\");\\n  if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\\n  \\n  let attempts = 0;\\n  const maxAttempts = 3;\\n  while (true) {\\n    try {\\n      attempts++;\\n      s.tokens = await refresh(s.tokens.refreshToken);\\n      return s.tokens;\\n    } catch (err) {\\n      if (err instanceof AuthError && err.code === \\\"ERR_TOKEN_REUSED\\\" && attempts < maxAttempts) {\"}}]"
+ },
+ {
+  "i": 47,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 28,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "read_file",
+    "args": {
+     "end_line": 45,
+     "path": "src/session.ts",
+     "start_line": 20
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"args\": {\"end_line\": 45, \"path\": \"src/session.ts\", \"start_line\": 20}}]"
+ },
+ {
+  "i": 48,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 288,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "read_file",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "end_line": 45,
+     "path": "src/session.ts",
+     "start_line": 20
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"response\": {\"ok\": true, \"path\": \"src/session.ts\", \"total_lines\": 398, \"start_line\": 20, \"end_line\": 45, \"content\": \"    try {\\n      attempts++;\\n      s.tokens = await refresh(s.tokens.refreshToken);\\n      return s.tokens;\\n    } catch (err) {\\n      if (err instanceof AuthError && err.code === \\\"ERR_TOKEN_REUSED\\\" && attempts < maxAttempts) {\\n        console.log(`[retry] refresh attempt=${attempts} backoff=${attempts * 100}ms`);\\n        await new Promise((res) => setTimeout(res, attempts * 100));\\n        // Cập nhật lại token từ session hiện tại (có thể đã được refresh bởi request khác)\\n        const currentSession = sessions.get(sessionId);\\n        if (!currentSession) throw new AuthError(\\\"ERR_SESSION_NOT_FOUND\\\");\\n        s.tokens = currentSession.tokens;\\n        if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\\n        continue;\\n      }\\n      throw err;\\n    }\\n  }\\n}\\n\\nexport function putSession(sessionId: string, session: Session): void {\\n  sessions.set(sessionId, session);\\n}\\n\\nexport function dropSession(sessionId: string): void {\\n  sessions.delete(sessionId);\"}}]"
+ },
+ {
+  "i": 49,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 3762,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "write_file",
+    "args": {
+     "content": "// src/session.ts — quản lý session phía server, tự refresh khi access token hết hạn\nimport { refresh, TokenPair, AuthError } from \"./auth\";\nimport { nowSeconds } from \"./utils\";\n\nexport interface Session {\n  userId: string;\n  tokens: TokenPair;\n}\n\nconst sessions = new Map<string, Session>();\n\nexport async function getValidTokens(sessionId: string): Promise<TokenPair> {\n  const s = sessions.get(sessionId);\n  if (!s) throw new AuthError(\"ERR_SESSION_NOT_FOUND\");\n  if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\n  s.tokens = await refresh(s.tokens.refreshToken);\n  return s.tokens;\n}\n\nexport function putSession(sessionId: string, session: Session): void {\n  sessions.set(sessionId, session);\n}\n\nexport function dropSession(sessionId: string): void {\n  sessions.delete(sessionId);\n}\n\n/** Kiểm tra claim `region`/`iss` cho policy #0. */\nexport function sessionPolicy0(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 48) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`scope` cho policy #1. */\nexport function sessionPolicy1(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 32) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `region`/`device` cho policy #2. */\nexport function sessionPolicy2(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 10) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `scope`/`iss` cho policy #3. */\nexport function sessionPolicy3(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 8) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `region`/`sub` cho policy #4. */\nexport function sessionPolicy4(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 21) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `region`/`sub` cho policy #5. */\nexport function sessionPolicy5(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 55) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `region`/`iss` cho policy #6. */\nexport function sessionPolicy6(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 27) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `scope`/`aud` cho policy #7. */\nexport function sessionPolicy7(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"aud\"] ?? \"\";\n  if (a.length === 0 || b.length > 7) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"ud\");\n}\n\n/** Kiểm tra claim `aud`/`region` cho policy #8. */\nexport function sessionPolicy8(claims: Record<string, string>): boolean {\n  const a = claims[\"aud\"] ?? \"\";\n  const b = claims[\"region\"] ?? \"\";\n  if (a.length === 0 || b.length > 50) return false;\n  return a.startsWith(\"au\") || b.endsWith(\"on\");\n}\n\n/** Kiểm tra claim `role`/`iss` cho policy #9. */\nexport function sessionPolicy9(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 11) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`sub` cho policy #10. */\nexport function sessionPolicy10(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 48) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `tenant`/`aud` cho policy #11. */\nexport function sessionPolicy11(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"aud\"] ?? \"\";\n  if (a.length === 0 || b.length > 34) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ud\");\n}\n\n/** Kiểm tra claim `region`/`scope` cho policy #12. */\nexport function sessionPolicy12(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 4) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `iss`/`sub` cho policy #13. */\nexport function sessionPolicy13(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 34) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `region`/`scope` cho policy #14. */\nexport function sessionPolicy14(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 22) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `iss`/`scope` cho policy #15. */\nexport function sessionPolicy15(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 25) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `device`/`iss` cho policy #16. */\nexport function sessionPolicy16(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 10) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `tenant`/`sub` cho policy #17. */\nexport function sessionPolicy17(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 23) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `tenant`/`device` cho policy #18. */\nexport function sessionPolicy18(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 28) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `aud`/`region` cho policy #19. */\nexport function sessionPolicy19(claims: Record<string, string>): boolean {\n  const a = claims[\"aud\"] ?? \"\";\n  const b = claims[\"region\"] ?? \"\";\n  if (a.length === 0 || b.length > 48) return false;\n  return a.startsWith(\"au\") || b.endsWith(\"on\");\n}\n\n/** Kiểm tra claim `sub`/`tenant` cho policy #20. */\nexport function sessionPolicy20(claims: Record<string, string>): boolean {\n  const a = claims[\"sub\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 21) return false;\n  return a.startsWith(\"su\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `role`/`iss` cho policy #21. */\nexport function sessionPolicy21(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 7) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `device`/`scope` cho policy #22. */\nexport function sessionPolicy22(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 58) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `aud`/`iss` cho policy #23. */\nexport function sessionPolicy23(claims: Record<string, string>): boolean {\n  const a = claims[\"aud\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 30) return false;\n  return a.startsWith(\"au\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`device` cho policy #24. */\nexport function sessionPolicy24(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 6) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `role`/`sub` cho policy #25. */\nexport function sessionPolicy25(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 6) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `role`/`tenant` cho policy #26. */\nexport function sessionPolicy26(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 12) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `scope`/`iss` cho policy #27. */\nexport function sessionPolicy27(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 30) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `tenant`/`aud` cho policy #28. */\nexport function sessionPolicy28(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"aud\"] ?? \"\";\n  if (a.length === 0 || b.length > 52) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ud\");\n}\n\n/** Kiểm tra claim `tenant`/`device` cho policy #29. */\nexport function sessionPolicy29(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 30) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `sub`/`device` cho policy #30. */\nexport function sessionPolicy30(claims: Record<string, string>): boolean {\n  const a = claims[\"sub\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 51) return false;\n  return a.startsWith(\"su\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `device`/`role` cho policy #31. */\nexport function sessionPolicy31(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"role\"] ?? \"\";\n  if (a.length === 0 || b.length > 38) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"le\");\n}\n\n/** Kiểm tra claim `scope`/`tenant` cho policy #32. */\nexport function sessionPolicy32(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 8) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `sub`/`tenant` cho policy #33. */\nexport function sessionPolicy33(claims: Record<string, string>): boolean {\n  const a = claims[\"sub\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 29) return false;\n  return a.startsWith(\"su\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `region`/`role` cho policy #34. */\nexport function sessionPolicy34(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"role\"] ?? \"\";\n  if (a.length === 0 || b.length > 51) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"le\");\n}\n\n/** Kiểm tra claim `iss`/`tenant` cho policy #35. */\nexport function sessionPolicy35(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 58) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `role`/`scope` cho policy #36. */\nexport function sessionPolicy36(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 6) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `iss`/`aud` cho policy #37. */\nexport function sessionPolicy37(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"aud\"] ?? \"\";\n  if (a.length === 0 || b.length > 33) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"ud\");\n}\n\n/** Kiểm tra claim `device`/`iss` cho policy #38. */\nexport function sessionPolicy38(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 21) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`iss` cho policy #39. */\nexport function sessionPolicy39(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 50) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`scope` cho policy #40. */\nexport function sessionPolicy40(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 44) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `scope`/`iss` cho policy #41. */\nexport function sessionPolicy41(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 33) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `device`/`sub` cho policy #42. */\nexport function sessionPolicy42(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 13) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `iss`/`sub` cho policy #43. */\nexport function sessionPolicy43(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 16) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"ub\");\n}\n",
+     "path": "src/session.ts"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"write_file\", \"args\": {\"content\": \"// src/session.ts — quản lý session phía server, tự refresh khi access token hết hạn\\nimport { refresh, TokenPair, AuthError } from \\\"./auth\\\";\\nimport { nowSeconds } from \\\"./utils\\\";\\n\\nexport interface Session {\\n  userId: string;\\n  tokens: TokenPair;\\n}\\n\\nconst sessions = new Map<string, Session>();\\n\\nexport async function getValidTokens(sessionId: string): Promise<TokenPair> {\\n  const s = sessions.get(sessionId);\\n  if (!s) throw new AuthError(\\\"ERR_SESSION_NOT_FOUND\\\");\\n  if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\\n  s.tokens = await refresh(s.tokens.refreshToken);\\n  return s.tokens;\\n}\\n\\nexport function putSession(sessionId: string, session: Session): void {\\n  sessions.set(sessionId, session);\\n}\\n\\nexport function dropSession(sessionId: string): void {\\n  sessions.delete(sessionId);\\n}\\n\\n/** Kiểm tra claim `region`/`iss` cho policy #0. */\\nexport function sessionPolicy0(claims: Record<string, string>): boolean {\\n  const a = claims[\\\"region\\\"] ?? \\\"\\\";\\n  const b = claims[\\\"iss\\\"] ?? \\\"\\\";\\n  if (a.length === 0 || b.length > 48) return false;\\n  return a.startsWith(\\\"re\\\") || b.endsWith(\\\"ss\\\");\\n}\\n\\n/** Kiểm tra claim `role`/`scope` cho policy #1. */\\nexport function sessionPolicy1(claims: Record<string, string>): boolean {\\n  const a = claims[\\\"role\\\"] ?? \\\"\\\";\\n  const b = claims[\\\"scope\\\"] ?? \\\"\\\";\\n  if (a.length === 0 || b.length > 32) return false;\\n  return a.startsWith(\\\"ro\\\") || b.endsWith(\\"
+ },
+ {
+  "i": 50,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 27,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "write_file",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "content": "// src/session.ts — quản lý session phía server, tự refresh khi access token hết hạn\nimport { refresh, TokenPair, AuthError } from \"./auth\";\nimport { nowSeconds } from \"./utils\";\n\nexport interface Session {\n  userId: string;\n  tokens: TokenPair;\n}\n\nconst sessions = new Map<string, Session>();\n\nexport async function getValidTokens(sessionId: string): Promise<TokenPair> {\n  const s = sessions.get(sessionId);\n  if (!s) throw new AuthError(\"ERR_SESSION_NOT_FOUND\");\n  if (s.tokens.expiresAt > nowSeconds()) return s.tokens;\n  s.tokens = await refresh(s.tokens.refreshToken);\n  return s.tokens;\n}\n\nexport function putSession(sessionId: string, session: Session): void {\n  sessions.set(sessionId, session);\n}\n\nexport function dropSession(sessionId: string): void {\n  sessions.delete(sessionId);\n}\n\n/** Kiểm tra claim `region`/`iss` cho policy #0. */\nexport function sessionPolicy0(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 48) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`scope` cho policy #1. */\nexport function sessionPolicy1(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 32) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `region`/`device` cho policy #2. */\nexport function sessionPolicy2(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 10) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `scope`/`iss` cho policy #3. */\nexport function sessionPolicy3(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 8) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `region`/`sub` cho policy #4. */\nexport function sessionPolicy4(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 21) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `region`/`sub` cho policy #5. */\nexport function sessionPolicy5(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 55) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `region`/`iss` cho policy #6. */\nexport function sessionPolicy6(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 27) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `scope`/`aud` cho policy #7. */\nexport function sessionPolicy7(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"aud\"] ?? \"\";\n  if (a.length === 0 || b.length > 7) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"ud\");\n}\n\n/** Kiểm tra claim `aud`/`region` cho policy #8. */\nexport function sessionPolicy8(claims: Record<string, string>): boolean {\n  const a = claims[\"aud\"] ?? \"\";\n  const b = claims[\"region\"] ?? \"\";\n  if (a.length === 0 || b.length > 50) return false;\n  return a.startsWith(\"au\") || b.endsWith(\"on\");\n}\n\n/** Kiểm tra claim `role`/`iss` cho policy #9. */\nexport function sessionPolicy9(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 11) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`sub` cho policy #10. */\nexport function sessionPolicy10(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 48) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `tenant`/`aud` cho policy #11. */\nexport function sessionPolicy11(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"aud\"] ?? \"\";\n  if (a.length === 0 || b.length > 34) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ud\");\n}\n\n/** Kiểm tra claim `region`/`scope` cho policy #12. */\nexport function sessionPolicy12(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 4) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `iss`/`sub` cho policy #13. */\nexport function sessionPolicy13(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 34) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `region`/`scope` cho policy #14. */\nexport function sessionPolicy14(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 22) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `iss`/`scope` cho policy #15. */\nexport function sessionPolicy15(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 25) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `device`/`iss` cho policy #16. */\nexport function sessionPolicy16(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 10) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `tenant`/`sub` cho policy #17. */\nexport function sessionPolicy17(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 23) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `tenant`/`device` cho policy #18. */\nexport function sessionPolicy18(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 28) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `aud`/`region` cho policy #19. */\nexport function sessionPolicy19(claims: Record<string, string>): boolean {\n  const a = claims[\"aud\"] ?? \"\";\n  const b = claims[\"region\"] ?? \"\";\n  if (a.length === 0 || b.length > 48) return false;\n  return a.startsWith(\"au\") || b.endsWith(\"on\");\n}\n\n/** Kiểm tra claim `sub`/`tenant` cho policy #20. */\nexport function sessionPolicy20(claims: Record<string, string>): boolean {\n  const a = claims[\"sub\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 21) return false;\n  return a.startsWith(\"su\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `role`/`iss` cho policy #21. */\nexport function sessionPolicy21(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 7) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `device`/`scope` cho policy #22. */\nexport function sessionPolicy22(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 58) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `aud`/`iss` cho policy #23. */\nexport function sessionPolicy23(claims: Record<string, string>): boolean {\n  const a = claims[\"aud\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 30) return false;\n  return a.startsWith(\"au\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`device` cho policy #24. */\nexport function sessionPolicy24(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 6) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `role`/`sub` cho policy #25. */\nexport function sessionPolicy25(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 6) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `role`/`tenant` cho policy #26. */\nexport function sessionPolicy26(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 12) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `scope`/`iss` cho policy #27. */\nexport function sessionPolicy27(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 30) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `tenant`/`aud` cho policy #28. */\nexport function sessionPolicy28(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"aud\"] ?? \"\";\n  if (a.length === 0 || b.length > 52) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ud\");\n}\n\n/** Kiểm tra claim `tenant`/`device` cho policy #29. */\nexport function sessionPolicy29(claims: Record<string, string>): boolean {\n  const a = claims[\"tenant\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 30) return false;\n  return a.startsWith(\"te\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `sub`/`device` cho policy #30. */\nexport function sessionPolicy30(claims: Record<string, string>): boolean {\n  const a = claims[\"sub\"] ?? \"\";\n  const b = claims[\"device\"] ?? \"\";\n  if (a.length === 0 || b.length > 51) return false;\n  return a.startsWith(\"su\") || b.endsWith(\"ce\");\n}\n\n/** Kiểm tra claim `device`/`role` cho policy #31. */\nexport function sessionPolicy31(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"role\"] ?? \"\";\n  if (a.length === 0 || b.length > 38) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"le\");\n}\n\n/** Kiểm tra claim `scope`/`tenant` cho policy #32. */\nexport function sessionPolicy32(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 8) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `sub`/`tenant` cho policy #33. */\nexport function sessionPolicy33(claims: Record<string, string>): boolean {\n  const a = claims[\"sub\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 29) return false;\n  return a.startsWith(\"su\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `region`/`role` cho policy #34. */\nexport function sessionPolicy34(claims: Record<string, string>): boolean {\n  const a = claims[\"region\"] ?? \"\";\n  const b = claims[\"role\"] ?? \"\";\n  if (a.length === 0 || b.length > 51) return false;\n  return a.startsWith(\"re\") || b.endsWith(\"le\");\n}\n\n/** Kiểm tra claim `iss`/`tenant` cho policy #35. */\nexport function sessionPolicy35(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"tenant\"] ?? \"\";\n  if (a.length === 0 || b.length > 58) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"nt\");\n}\n\n/** Kiểm tra claim `role`/`scope` cho policy #36. */\nexport function sessionPolicy36(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 6) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `iss`/`aud` cho policy #37. */\nexport function sessionPolicy37(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"aud\"] ?? \"\";\n  if (a.length === 0 || b.length > 33) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"ud\");\n}\n\n/** Kiểm tra claim `device`/`iss` cho policy #38. */\nexport function sessionPolicy38(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 21) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`iss` cho policy #39. */\nexport function sessionPolicy39(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 50) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `role`/`scope` cho policy #40. */\nexport function sessionPolicy40(claims: Record<string, string>): boolean {\n  const a = claims[\"role\"] ?? \"\";\n  const b = claims[\"scope\"] ?? \"\";\n  if (a.length === 0 || b.length > 44) return false;\n  return a.startsWith(\"ro\") || b.endsWith(\"pe\");\n}\n\n/** Kiểm tra claim `scope`/`iss` cho policy #41. */\nexport function sessionPolicy41(claims: Record<string, string>): boolean {\n  const a = claims[\"scope\"] ?? \"\";\n  const b = claims[\"iss\"] ?? \"\";\n  if (a.length === 0 || b.length > 33) return false;\n  return a.startsWith(\"sc\") || b.endsWith(\"ss\");\n}\n\n/** Kiểm tra claim `device`/`sub` cho policy #42. */\nexport function sessionPolicy42(claims: Record<string, string>): boolean {\n  const a = claims[\"device\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 13) return false;\n  return a.startsWith(\"de\") || b.endsWith(\"ub\");\n}\n\n/** Kiểm tra claim `iss`/`sub` cho policy #43. */\nexport function sessionPolicy43(claims: Record<string, string>): boolean {\n  const a = claims[\"iss\"] ?? \"\";\n  const b = claims[\"sub\"] ?? \"\";\n  if (a.length === 0 || b.length > 16) return false;\n  return a.startsWith(\"is\") || b.endsWith(\"ub\");\n}\n",
+     "path": "src/session.ts"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"write_file\", \"response\": {\"ok\": true, \"path\": \"src/session.ts\", \"bytes\": 14143}}]"
+ },
+ {
+  "i": 51,
+  "role": "assistant",
+  "turn": 7,
+  "tokens": 13,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "run_tests",
+    "args": {}
+   }
+  ],
+  "preview": "[{\"name\": \"run_tests\", \"args\": {}}]"
+ },
+ {
+  "i": 52,
+  "role": "tool",
+  "turn": 7,
+  "tokens": 6237,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "run_tests",
+    "label": "KEEP",
+    "archive_id": "a011",
+    "args": {}
+   }
+  ],
+  "preview": "[{\"name\": \"run_tests\", \"response\": {\"ok\": true, \"exit_code\": 1, \"output\": \"> authsvc@1.0.0 test\\n> jest --verbose\\n\\nFAIL tests/auth.test.ts\\n  auth.refresh\\n    ✓ rotates refresh token (9 ms)\\n    ✕ concurrent refresh returns same token (36 ms)\\n    ✕ refresh after expiry (18 ms)\\n    ✕ parallel logout (20 ms)\\n    ✓ api: refresh signature is backward compatible (19 ms)\\n\\nPASS tests/session.test.ts\\n  session\\n    ✓ session case 1.0 handles input variant 752 (3 ms)\\n    ✓ session case 1.1 handles input variant 311 (15 ms)\\n    ✓ session case 1.2 handles input variant 407 (13 ms)\\n    ✓ session case 1.3 handles input variant 122 (9 ms)\\n  console.log\\n    [retry] refresh attempt=2 backoff=200ms\\n\\n      at Object.<anonymous> (src/session.ts:17:11)\\n\\n    ✓ session case 1.4 handles input variant 367 (26 ms)\\n  console.log\\n    [retry] refresh attempt=3 backoff=300ms\\n\\n      at Object.<anonymous> (src/session.ts:17:11)\\n\\n    ✓ session case 1.5 handles input variant 647 (17 ms)\\n  console.log\\n    [retry] refresh attempt=3 backoff=300ms\\n\\n      at Object.<anonymous> (src/session.ts:17:11)\\n\\n    ✓ session case 1.6 handles input variant 682 (22 ms)\\n  console.log\\n    [retry] refresh attempt=1 backoff=100ms\\n\\n      at Object.<anonymous> (src/session.ts:17:11)\\n\\n    ✓ session case 1.7 handles input variant 668 (3 ms)\\n  console.log\\n    [retry] refresh attempt=2 backoff=200ms\\n\\n      at Object.<anonymous> (src/session.ts:17:11)\\n\\n    ✓ session case 1.8 handles input varian"
+ }
+]

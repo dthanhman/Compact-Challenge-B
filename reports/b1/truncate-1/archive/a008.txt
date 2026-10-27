@@ -1,0 +1,40 @@
+// src/auth.ts — xác thực và xoay vòng (rotate) refresh token
+import { tokenStore, TokenRecord } from "./tokenStore";
+import { loadTokenConfig } from "./config";
+import { randomId, nowSeconds } from "./utils";
+
+export interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: number;
+}
+
+export class AuthError extends Error {
+  constructor(public code: string) {
+    super(code);
+  }
+}
+
+export function issueTokenPair(userId: string): TokenPair {
+  const cfg = loadTokenConfig();
+  return {
+    accessToken: `at_${userId}_${randomId()}`,
+    refreshToken: `rt_${userId}_${randomId()}`,
+    expiresAt: nowSeconds() + cfg.ttlSeconds,
+  };
+}
+
+/**
+ * Đổi refresh token lấy cặp token mới. Refresh token cũ bị thu hồi (rotation).
+ * Được gọi từ session.ts khi access token hết hạn; client có thể gọi song song.
+ */
+export async function refresh(refreshToken: string): Promise<TokenPair> {
+  const record: TokenRecord | undefined = await tokenStore.get(refreshToken);
+  if (!record || record.revoked) {
+    throw new AuthError("ERR_TOKEN_REUSED");
+  }
+  // rotate: thu hồi token cũ rồi phát hành cặp mới
+  await tokenStore.revoke(refreshToken);
+  const pair = issueTokenPair(record.userId);
+  await tokenStore.save(pair.refreshToken, { userId: record.userId, revoked: false });
+  return pair;

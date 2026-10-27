@@ -1,0 +1,10 @@
+[
+ {
+  "i": 0,
+  "role": "user",
+  "turn": 8,
+  "tokens": 23,
+  "checkpoint": false,
+  "preview": "Đọc tests/auth.test.ts và đối chiếu từng test fail với code của refresh()."
+ }
+]

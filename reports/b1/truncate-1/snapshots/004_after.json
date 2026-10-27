@@ -1,0 +1,10 @@
+[
+ {
+  "i": 0,
+  "role": "user",
+  "turn": 6,
+  "tokens": 38,
+  "checkpoint": false,
+  "preview": "Thử thêm cơ chế retry: trong src/session.ts, nếu refresh() ném lỗi ERR_TOKEN_REUSED thì gọi lại tối đa 3 lần. Sửa xong chạy lại test."
+ }
+]

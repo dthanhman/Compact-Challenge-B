@@ -1,0 +1,146 @@
+[
+ {
+  "i": 0,
+  "role": "user",
+  "turn": 5,
+  "tokens": 27,
+  "checkpoint": false,
+  "preview": "Thử cách nhanh trước: tăng ttlSeconds trong config/token.json lên 1800 rồi chạy lại test."
+ },
+ {
+  "i": 1,
+  "role": "assistant",
+  "turn": 5,
+  "tokens": 20,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "list_files",
+    "args": {
+     "glob": "**/*token*.json"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"list_files\", \"args\": {\"glob\": \"**/*token*.json\"}}]"
+ },
+ {
+  "i": 2,
+  "role": "tool",
+  "turn": 5,
+  "tokens": 28,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "list_files",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "glob": "**/*token*.json"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"list_files\", \"response\": {\"ok\": true, \"count\": 1, \"files\": [\"config/token.json\"]}}]"
+ },
+ {
+  "i": 3,
+  "role": "assistant",
+  "turn": 5,
+  "tokens": 20,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "read_file",
+    "args": {
+     "path": "config/token.json"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"args\": {\"path\": \"config/token.json\"}}]"
+ },
+ {
+  "i": 4,
+  "role": "tool",
+  "turn": 5,
+  "tokens": 47,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "read_file",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "path": "config/token.json"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"read_file\", \"response\": {\"ok\": true, \"path\": \"config/token.json\", \"total_lines\": 3, \"start_line\": 1, \"end_line\": 3, \"content\": \"{\\n  \\\"ttlSeconds\\\": 900\\n}\"}}]"
+ },
+ {
+  "i": 5,
+  "role": "assistant",
+  "turn": 5,
+  "tokens": 41,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "replace_in_file",
+    "args": {
+     "old": "{\n  \"ttlSeconds\": 900\n}",
+     "path": "config/token.json",
+     "new": "{\n  \"ttlSeconds\": 1800\n}"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"replace_in_file\", \"args\": {\"old\": \"{\\n  \\\"ttlSeconds\\\": 900\\n}\", \"path\": \"config/token.json\", \"new\": \"{\\n  \\\"ttlSeconds\\\": 1800\\n}\"}}]"
+ },
+ {
+  "i": 6,
+  "role": "tool",
+  "turn": 5,
+  "tokens": 25,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "replace_in_file",
+    "label": "KEEP",
+    "archive_id": null,
+    "args": {
+     "old": "{\n  \"ttlSeconds\": 900\n}",
+     "path": "config/token.json",
+     "new": "{\n  \"ttlSeconds\": 1800\n}"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"replace_in_file\", \"response\": {\"ok\": true, \"path\": \"config/token.json\"}}]"
+ },
+ {
+  "i": 7,
+  "role": "assistant",
+  "turn": 5,
+  "tokens": 13,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "run_tests",
+    "args": {}
+   }
+  ],
+  "preview": "[{\"name\": \"run_tests\", \"args\": {}}]"
+ },
+ {
+  "i": 8,
+  "role": "tool",
+  "turn": 5,
+  "tokens": 6237,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "run_tests",
+    "label": "KEEP",
+    "archive_id": "a006",
+    "args": {}
+   }
+  ],
+  "preview": "[{\"name\": \"run_tests\", \"response\": {\"ok\": true, \"exit_code\": 1, \"output\": \"> authsvc@1.0.0 test\\n> jest --verbose\\n\\nFAIL tests/auth.test.ts\\n  auth.refresh\\n    ✓ rotates refresh token (9 ms)\\n    ✕ concurrent refresh returns same token (36 ms)\\n    ✕ refresh after expiry (18 ms)\\n    ✕ parallel logout (20 ms)\\n    ✓ api: refresh signature is backward compatible (19 ms)\\n\\nPASS tests/session.test.ts\\n  session\\n    ✓ session case 1.0 handles input variant 752 (3 ms)\\n    ✓ session case 1.1 handles input variant 311 (15 ms)\\n    ✓ session case 1.2 handles input variant 407 (13 ms)\\n    ✓ session case 1.3 handles input variant 122 (9 ms)\\n  console.log\\n    [retry] refresh attempt=2 backoff=200ms\\n\\n      at Object.<anonymous> (src/session.ts:17:11)\\n\\n    ✓ session case 1.4 handles input variant 367 (26 ms)\\n  console.log\\n    [retry] refresh attempt=3 backoff=300ms\\n\\n      at Object.<anonymous> (src/session.ts:17:11)\\n\\n    ✓ session case 1.5 handles input variant 647 (17 ms)\\n  console.log\\n    [retry] refresh attempt=3 backoff=300ms\\n\\n      at Object.<anonymous> (src/session.ts:17:11)\\n\\n    ✓ session case 1.6 handles input variant 682 (22 ms)\\n  console.log\\n    [retry] refresh attempt=1 backoff=100ms\\n\\n      at Object.<anonymous> (src/session.ts:17:11)\\n\\n    ✓ session case 1.7 handles input variant 668 (3 ms)\\n  console.log\\n    [retry] refresh attempt=2 backoff=200ms\\n\\n      at Object.<anonymous> (src/session.ts:17:11)\\n\\n    ✓ session case 1.8 handles input varian"
+ }
+]

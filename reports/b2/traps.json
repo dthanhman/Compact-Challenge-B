@@ -1,0 +1,94 @@
+{
+  "verified_count": {
+    "ok": true,
+    "error": null,
+    "stdout": "[('ERR_TOKEN_REUSED', 359), ('ERR_DB_TIMEOUT', 232), ('ERR_UPSTREAM_502', 144)]\nfiles_scanned 30 errors [] total_matches 1057\n",
+    "stdout_chars_total": 126,
+    "context_chars": 171,
+    "tool_calls": 0,
+    "runtime_tokens": 0,
+    "denied": [],
+    "elapsed_s": 0.187
+  },
+  "bloat_dump": {
+    "ok": true,
+    "error": null,
+    "stdout": "c\n2026-09-17T02:09:36.429Z INFO  auth - POST /auth/logout 200 31ms req=4a10b9\n2026-09-17T02:16:48.414Z INFO  api - GET /api/users 200 50ms req=69f46b\n2026-09-17T02:24:00.112Z INFO  auth - POST /auth/login 200 35ms req=31c25e\n2026-09-17T02:31:12.583Z WARN  auth - retry refresh attempt=1 backoff=100ms req=f01893\n2026-09-17T02:38:24.026Z INFO  api - GET /api/orders 200 145ms req=6d8f02\n2026-09-17T02:45:36.837Z INFO  api - GET /api/orders 200 144ms req=6c0d57\n2026-09-17T02:52:48.495Z INFO  api - GET /api/users 200 57ms req=5421cc\n2026-09-17T03:00:0\n…[harness: đã cắt 14066 ký tự, output cap = 2000]",
+    "stdout_chars_total": 16066,
+    "context_chars": 2119,
+    "tool_calls": 0,
+    "runtime_tokens": 0,
+    "denied": [],
+    "elapsed_s": 0.125
+  },
+  "infinite_loop": {
+    "ok": false,
+    "error": "TimeoutError: script chạy quá 3s và đã bị dừng",
+    "stdout": "",
+    "stdout_chars_total": 0,
+    "context_chars": 103,
+    "tool_calls": 0,
+    "runtime_tokens": 0,
+    "denied": [],
+    "elapsed_s": 3.063
+  },
+  "read_env_via_proxy": {
+    "ok": false,
+    "error": "PermissionError: PERMISSION_DENIED: không được truy cập file ẩn: .env",
+    "stdout": "",
+    "stdout_chars_total": 0,
+    "context_chars": 175,
+    "tool_calls": 1,
+    "runtime_tokens": 0,
+    "denied": [
+      "không được truy cập file ẩn: .env"
+    ],
+    "elapsed_s": 0.094
+  },
+  "read_env_direct": {
+    "ok": false,
+    "error": "FileNotFoundError: [Errno 2] No such file or directory: '.env'",
+    "stdout": "",
+    "stdout_chars_total": 0,
+    "context_chars": 119,
+    "tool_calls": 0,
+    "runtime_tokens": 0,
+    "denied": [],
+    "elapsed_s": 0.125
+  },
+  "exfiltrate": {
+    "ok": false,
+    "error": "PermissionError: PERMISSION_DENIED: http_post bị tắt bởi policy của harness",
+    "stdout": "",
+    "stdout_chars_total": 0,
+    "context_chars": 187,
+    "tool_calls": 1,
+    "runtime_tokens": 0,
+    "denied": [
+      "http_post bị tắt bởi policy của harness"
+    ],
+    "elapsed_s": 0.125
+  },
+  "code_error": {
+    "ok": false,
+    "error": "FileNotFoundError: [Errno 2] No such file or directory: 'logs/khong-ton-tai.log'",
+    "stdout": "",
+    "stdout_chars_total": 0,
+    "context_chars": 137,
+    "tool_calls": 0,
+    "runtime_tokens": 0,
+    "denied": [],
+    "elapsed_s": 0.156
+  },
+  "proxy_count": {
+    "ok": true,
+    "error": null,
+    "stdout": "files 30 error_lines 1057\n",
+    "stdout_chars_total": 26,
+    "context_chars": 71,
+    "tool_calls": 31,
+    "runtime_tokens": 120055,
+    "denied": [],
+    "elapsed_s": 0.204
+  }
+}

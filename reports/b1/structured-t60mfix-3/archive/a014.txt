@@ -1,0 +1,11 @@
+logs/app-2026-09-17.log:3: 2026-09-17T00:14:24.993Z WARN  auth - retry refresh attempt=1 backoff=100ms req=242e2f
+logs/app-2026-09-17.log:6: 2026-09-17T00:36:00.162Z WARN  auth - retry refresh attempt=2 backoff=200ms req=a58a3a
+logs/app-2026-09-17.log:7: 2026-09-17T00:43:12.524Z WARN  auth - retry refresh attempt=1 backoff=100ms req=d90d40
+logs/app-2026-09-17.log:22: 2026-09-17T02:31:12.583Z WARN  auth - retry refresh attempt=1 backoff=100ms req=f01893
+logs/app-2026-09-17.log:29: 2026-09-17T03:21:36.949Z WARN  auth - retry refresh attempt=3 backoff=300ms req=98cdc8
+logs/app-2026-09-17.log:67: 2026-09-17T07:55:12.753Z WARN  auth - retry refresh attempt=3 backoff=300ms req=0f3a24
+logs/app-2026-09-17.log:139: 2026-09-17T16:26:24.335Z WARN  auth - retry refresh attempt=2 backoff=200ms req=a3e375
+logs/app-2026-09-17.log:152: 2026-09-17T18:00:00.615Z WARN  auth - retry refresh attempt=2 backoff=200ms req=79a912
+logs/app-2026-09-17.log:154: 2026-09-17T18:14:24.590Z WARN  auth - retry refresh attempt=2 backoff=200ms req=686be2
+logs/app-2026-09-17.log:189: 2026-09-17T22:26:24.908Z WARN  auth - retry refresh attempt=2 backoff=200ms req=932750
+logs/app-2026-09-17.log:192: 2026-09-17T22:48:00.615Z WARN  auth - retry refresh attempt=1 backoff=100ms req=1c3e83

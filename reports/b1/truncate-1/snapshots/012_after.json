@@ -1,0 +1,10 @@
+[
+ {
+  "i": 0,
+  "role": "user",
+  "turn": 7,
+  "tokens": 45,
+  "checkpoint": false,
+  "preview": "Hai cách đó đều không giúp. Revert cả hai thay đổi (ttlSeconds về 900, bỏ đoạn retry trong session.ts) rồi chạy lại test để chắc chắn code đã về trạng thái ban đầu."
+ }
+]

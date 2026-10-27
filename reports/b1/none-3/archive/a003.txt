@@ -1,0 +1,377 @@
+// src/session.ts — quản lý session phía server, tự refresh khi access token hết hạn
+import { refresh, TokenPair, AuthError } from "./auth";
+import { nowSeconds } from "./utils";
+
+export interface Session {
+  userId: string;
+  tokens: TokenPair;
+}
+
+const sessions = new Map<string, Session>();
+
+export async function getValidTokens(sessionId: string): Promise<TokenPair> {
+  const s = sessions.get(sessionId);
+  if (!s) throw new AuthError("ERR_SESSION_NOT_FOUND");
+  if (s.tokens.expiresAt > nowSeconds()) return s.tokens;
+  // Nhiều request cùng session có thể tới đây cùng lúc -> gọi refresh() song song
+  s.tokens = await refresh(s.tokens.refreshToken);
+  return s.tokens;
+}
+
+export function putSession(sessionId: string, session: Session): void {
+  sessions.set(sessionId, session);
+}
+
+export function dropSession(sessionId: string): void {
+  sessions.delete(sessionId);
+}
+
+/** Kiểm tra claim `region`/`iss` cho policy #0. */
+export function sessionPolicy0(claims: Record<string, string>): boolean {
+  const a = claims["region"] ?? "";
+  const b = claims["iss"] ?? "";
+  if (a.length === 0 || b.length > 48) return false;
+  return a.startsWith("re") || b.endsWith("ss");
+}
+
+/** Kiểm tra claim `role`/`scope` cho policy #1. */
+export function sessionPolicy1(claims: Record<string, string>): boolean {
+  const a = claims["role"] ?? "";
+  const b = claims["scope"] ?? "";
+  if (a.length === 0 || b.length > 32) return false;
+  return a.startsWith("ro") || b.endsWith("pe");
+}
+
+/** Kiểm tra claim `region`/`device` cho policy #2. */
+export function sessionPolicy2(claims: Record<string, string>): boolean {
+  const a = claims["region"] ?? "";
+  const b = claims["device"] ?? "";
+  if (a.length === 0 || b.length > 10) return false;
+  return a.startsWith("re") || b.endsWith("ce");
+}
+
+/** Kiểm tra claim `scope`/`iss` cho policy #3. */
+export function sessionPolicy3(claims: Record<string, string>): boolean {
+  const a = claims["scope"] ?? "";
+  const b = claims["iss"] ?? "";
+  if (a.length === 0 || b.length > 8) return false;
+  return a.startsWith("sc") || b.endsWith("ss");
+}
+
+/** Kiểm tra claim `region`/`sub` cho policy #4. */
+export function sessionPolicy4(claims: Record<string, string>): boolean {
+  const a = claims["region"] ?? "";
+  const b = claims["sub"] ?? "";
+  if (a.length === 0 || b.length > 21) return false;
+  return a.startsWith("re") || b.endsWith("ub");
+}
+
+/** Kiểm tra claim `region`/`sub` cho policy #5. */
+export function sessionPolicy5(claims: Record<string, string>): boolean {
+  const a = claims["region"] ?? "";
+  const b = claims["sub"] ?? "";
+  if (a.length === 0 || b.length > 55) return false;
+  return a.startsWith("re") || b.endsWith("ub");
+}
+
+/** Kiểm tra claim `region`/`iss` cho policy #6. */
+export function sessionPolicy6(claims: Record<string, string>): boolean {
+  const a = claims["region"] ?? "";
+  const b = claims["iss"] ?? "";
+  if (a.length === 0 || b.length > 27) return false;
+  return a.startsWith("re") || b.endsWith("ss");
+}
+
+/** Kiểm tra claim `scope`/`aud` cho policy #7. */
+export function sessionPolicy7(claims: Record<string, string>): boolean {
+  const a = claims["scope"] ?? "";
+  const b = claims["aud"] ?? "";
+  if (a.length === 0 || b.length > 7) return false;
+  return a.startsWith("sc") || b.endsWith("ud");
+}
+
+/** Kiểm tra claim `aud`/`region` cho policy #8. */
+export function sessionPolicy8(claims: Record<string, string>): boolean {
+  const a = claims["aud"] ?? "";
+  const b = claims["region"] ?? "";
+  if (a.length === 0 || b.length > 50) return false;
+  return a.startsWith("au") || b.endsWith("on");
+}
+
+/** Kiểm tra claim `role`/`iss` cho policy #9. */
+export function sessionPolicy9(claims: Record<string, string>): boolean {
+  const a = claims["role"] ?? "";
+  const b = claims["iss"] ?? "";
+  if (a.length === 0 || b.length > 11) return false;
+  return a.startsWith("ro") || b.endsWith("ss");
+}
+
+/** Kiểm tra claim `role`/`sub` cho policy #10. */
+export function sessionPolicy10(claims: Record<string, string>): boolean {
+  const a = claims["role"] ?? "";
+  const b = claims["sub"] ?? "";
+  if (a.length === 0 || b.length > 48) return false;
+  return a.startsWith("ro") || b.endsWith("ub");
+}
+
+/** Kiểm tra claim `tenant`/`aud` cho policy #11. */
+export function sessionPolicy11(claims: Record<string, string>): boolean {
+  const a = claims["tenant"] ?? "";
+  const b = claims["aud"] ?? "";
+  if (a.length === 0 || b.length > 34) return false;
+  return a.startsWith("te") || b.endsWith("ud");
+}
+
+/** Kiểm tra claim `region`/`scope` cho policy #12. */
+export function sessionPolicy12(claims: Record<string, string>): boolean {
+  const a = claims["region"] ?? "";
+  const b = claims["scope"] ?? "";
+  if (a.length === 0 || b.length > 4) return false;
+  return a.startsWith("re") || b.endsWith("pe");
+}
+
+/** Kiểm tra claim `iss`/`sub` cho policy #13. */
+export function sessionPolicy13(claims: Record<string, string>): boolean {
+  const a = claims["iss"] ?? "";
+  const b = claims["sub"] ?? "";
+  if (a.length === 0 || b.length > 34) return false;
+  return a.startsWith("is") || b.endsWith("ub");
+}
+
+/** Kiểm tra claim `region`/`scope` cho policy #14. */
+export function sessionPolicy14(claims: Record<string, string>): boolean {
+  const a = claims["region"] ?? "";
+  const b = claims["scope"] ?? "";
+  if (a.length === 0 || b.length > 22) return false;
+  return a.startsWith("re") || b.endsWith("pe");
+}
+
+/** Kiểm tra claim `iss`/`scope` cho policy #15. */
+export function sessionPolicy15(claims: Record<string, string>): boolean {
+  const a = claims["iss"] ?? "";
+  const b = claims["scope"] ?? "";
+  if (a.length === 0 || b.length > 25) return false;
+  return a.startsWith("is") || b.endsWith("pe");
+}
+
+/** Kiểm tra claim `device`/`iss` cho policy #16. */
+export function sessionPolicy16(claims: Record<string, string>): boolean {
+  const a = claims["device"] ?? "";
+  const b = claims["iss"] ?? "";
+  if (a.length === 0 || b.length > 10) return false;
+  return a.startsWith("de") || b.endsWith("ss");
+}
+
+/** Kiểm tra claim `tenant`/`sub` cho policy #17. */
+export function sessionPolicy17(claims: Record<string, string>): boolean {
+  const a = claims["tenant"] ?? "";
+  const b = claims["sub"] ?? "";
+  if (a.length === 0 || b.length > 23) return false;
+  return a.startsWith("te") || b.endsWith("ub");
+}
+
+/** Kiểm tra claim `tenant`/`device` cho policy #18. */
+export function sessionPolicy18(claims: Record<string, string>): boolean {
+  const a = claims["tenant"] ?? "";
+  const b = claims["device"] ?? "";
+  if (a.length === 0 || b.length > 28) return false;
+  return a.startsWith("te") || b.endsWith("ce");
+}
+
+/** Kiểm tra claim `aud`/`region` cho policy #19. */
+export function sessionPolicy19(claims: Record<string, string>): boolean {
+  const a = claims["aud"] ?? "";
+  const b = claims["region"] ?? "";
+  if (a.length === 0 || b.length > 48) return false;
+  return a.startsWith("au") || b.endsWith("on");
+}
+
+/** Kiểm tra claim `sub`/`tenant` cho policy #20. */
+export function sessionPolicy20(claims: Record<string, string>): boolean {
+  const a = claims["sub"] ?? "";
+  const b = claims["tenant"] ?? "";
+  if (a.length === 0 || b.length > 21) return false;
+  return a.startsWith("su") || b.endsWith("nt");
+}
+
+/** Kiểm tra claim `role`/`iss` cho policy #21. */
+export function sessionPolicy21(claims: Record<string, string>): boolean {
+  const a = claims["role"] ?? "";
+  const b = claims["iss"] ?? "";
+  if (a.length === 0 || b.length > 7) return false;
+  return a.startsWith("ro") || b.endsWith("ss");
+}
+
+/** Kiểm tra claim `device`/`scope` cho policy #22. */
+export function sessionPolicy22(claims: Record<string, string>): boolean {
+  const a = claims["device"] ?? "";
+  const b = claims["scope"] ?? "";
+  if (a.length === 0 || b.length > 58) return false;
+  return a.startsWith("de") || b.endsWith("pe");
+}
+
+/** Kiểm tra claim `aud`/`iss` cho policy #23. */
+export function sessionPolicy23(claims: Record<string, string>): boolean {
+  const a = claims["aud"] ?? "";
+  const b = claims["iss"] ?? "";
+  if (a.length === 0 || b.length > 30) return false;
+  return a.startsWith("au") || b.endsWith("ss");
+}
+
+/** Kiểm tra claim `role`/`device` cho policy #24. */
+export function sessionPolicy24(claims: Record<string, string>): boolean {
+  const a = claims["role"] ?? "";
+  const b = claims["device"] ?? "";
+  if (a.length === 0 || b.length > 6) return false;
+  return a.startsWith("ro") || b.endsWith("ce");
+}
+
+/** Kiểm tra claim `role`/`sub` cho policy #25. */
+export function sessionPolicy25(claims: Record<string, string>): boolean {
+  const a = claims["role"] ?? "";
+  const b = claims["sub"] ?? "";
+  if (a.length === 0 || b.length > 6) return false;
+  return a.startsWith("ro") || b.endsWith("ub");
+}
+
+/** Kiểm tra claim `role`/`tenant` cho policy #26. */
+export function sessionPolicy26(claims: Record<string, string>): boolean {
+  const a = claims["role"] ?? "";
+  const b = claims["tenant"] ?? "";
+  if (a.length === 0 || b.length > 12) return false;
+  return a.startsWith("ro") || b.endsWith("nt");
+}
+
+/** Kiểm tra claim `scope`/`iss` cho policy #27. */
+export function sessionPolicy27(claims: Record<string, string>): boolean {
+  const a = claims["scope"] ?? "";
+  const b = claims["iss"] ?? "";
+  if (a.length === 0 || b.length > 30) return false;
+  return a.startsWith("sc") || b.endsWith("ss");
+}
+
+/** Kiểm tra claim `tenant`/`aud` cho policy #28. */
+export function sessionPolicy28(claims: Record<string, string>): boolean {
+  const a = claims["tenant"] ?? "";
+  const b = claims["aud"] ?? "";
+  if (a.length === 0 || b.length > 52) return false;
+  return a.startsWith("te") || b.endsWith("ud");
+}
+
+/** Kiểm tra claim `tenant`/`device` cho policy #29. */
+export function sessionPolicy29(claims: Record<string, string>): boolean {
+  const a = claims["tenant"] ?? "";
+  const b = claims["device"] ?? "";
+  if (a.length === 0 || b.length > 30) return false;
+  return a.startsWith("te") || b.endsWith("ce");
+}
+
+/** Kiểm tra claim `sub`/`device` cho policy #30. */
+export function sessionPolicy30(claims: Record<string, string>): boolean {
+  const a = claims["sub"] ?? "";
+  const b = claims["device"] ?? "";
+  if (a.length === 0 || b.length > 51) return false;
+  return a.startsWith("su") || b.endsWith("ce");
+}
+
+/** Kiểm tra claim `device`/`role` cho policy #31. */
+export function sessionPolicy31(claims: Record<string, string>): boolean {
+  const a = claims["device"] ?? "";
+  const b = claims["role"] ?? "";
+  if (a.length === 0 || b.length > 38) return false;
+  return a.startsWith("de") || b.endsWith("le");
+}
+
+/** Kiểm tra claim `scope`/`tenant` cho policy #32. */
+export function sessionPolicy32(claims: Record<string, string>): boolean {
+  const a = claims["scope"] ?? "";
+  const b = claims["tenant"] ?? "";
+  if (a.length === 0 || b.length > 8) return false;
+  return a.startsWith("sc") || b.endsWith("nt");
+}
+
+/** Kiểm tra claim `sub`/`tenant` cho policy #33. */
+export function sessionPolicy33(claims: Record<string, string>): boolean {
+  const a = claims["sub"] ?? "";
+  const b = claims["tenant"] ?? "";
+  if (a.length === 0 || b.length > 29) return false;
+  return a.startsWith("su") || b.endsWith("nt");
+}
+
+/** Kiểm tra claim `region`/`role` cho policy #34. */
+export function sessionPolicy34(claims: Record<string, string>): boolean {
+  const a = claims["region"] ?? "";
+  const b = claims["role"] ?? "";
+  if (a.length === 0 || b.length > 51) return false;
+  return a.startsWith("re") || b.endsWith("le");
+}
+
+/** Kiểm tra claim `iss`/`tenant` cho policy #35. */
+export function sessionPolicy35(claims: Record<string, string>): boolean {
+  const a = claims["iss"] ?? "";
+  const b = claims["tenant"] ?? "";
+  if (a.length === 0 || b.length > 58) return false;
+  return a.startsWith("is") || b.endsWith("nt");
+}
+
+/** Kiểm tra claim `role`/`scope` cho policy #36. */
+export function sessionPolicy36(claims: Record<string, string>): boolean {
+  const a = claims["role"] ?? "";
+  const b = claims["scope"] ?? "";
+  if (a.length === 0 || b.length > 6) return false;
+  return a.startsWith("ro") || b.endsWith("pe");
+}
+
+/** Kiểm tra claim `iss`/`aud` cho policy #37. */
+export function sessionPolicy37(claims: Record<string, string>): boolean {
+  const a = claims["iss"] ?? "";
+  const b = claims["aud"] ?? "";
+  if (a.length === 0 || b.length > 33) return false;
+  return a.startsWith("is") || b.endsWith("ud");
+}
+
+/** Kiểm tra claim `device`/`iss` cho policy #38. */
+export function sessionPolicy38(claims: Record<string, string>): boolean {
+  const a = claims["device"] ?? "";
+  const b = claims["iss"] ?? "";
+  if (a.length === 0 || b.length > 21) return false;
+  return a.startsWith("de") || b.endsWith("ss");
+}
+
+/** Kiểm tra claim `role`/`iss` cho policy #39. */
+export function sessionPolicy39(claims: Record<string, string>): boolean {
+  const a = claims["role"] ?? "";
+  const b = claims["iss"] ?? "";
+  if (a.length === 0 || b.length > 50) return false;
+  return a.startsWith("ro") || b.endsWith("ss");
+}
+
+/** Kiểm tra claim `role`/`scope` cho policy #40. */
+export function sessionPolicy40(claims: Record<string, string>): boolean {
+  const a = claims["role"] ?? "";
+  const b = claims["scope"] ?? "";
+  if (a.length === 0 || b.length > 44) return false;
+  return a.startsWith("ro") || b.endsWith("pe");
+}
+
+/** Kiểm tra claim `scope`/`iss` cho policy #41. */
+export function sessionPolicy41(claims: Record<string, string>): boolean {
+  const a = claims["scope"] ?? "";
+  const b = claims["iss"] ?? "";
+  if (a.length === 0 || b.length > 33) return false;
+  return a.startsWith("sc") || b.endsWith("ss");
+}
+
+/** Kiểm tra claim `device`/`sub` cho policy #42. */
+export function sessionPolicy42(claims: Record<string, string>): boolean {
+  const a = claims["device"] ?? "";
+  const b = claims["sub"] ?? "";
+  if (a.length === 0 || b.length > 13) return false;
+  return a.startsWith("de") || b.endsWith("ub");
+}
+
+/** Kiểm tra claim `iss`/`sub` cho policy #43. */
+export function sessionPolicy43(claims: Record<string, string>): boolean {
+  const a = claims["iss"] ?? "";
+  const b = claims["sub"] ?? "";
+  if (a.length === 0 || b.length > 16) return false;

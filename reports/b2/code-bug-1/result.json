@@ -1,0 +1,240 @@
+{
+  "run": "code-bug-1",
+  "mode": "code",
+  "model": "gemini-3.5-flash-lite",
+  "log_files": 30,
+  "log_total_lines": 6001,
+  "items": [
+    {
+      "id": "Q1",
+      "question": "Trong tất cả các file logs/*.log, 3 mã lỗi (dạng ERR_*) nào xuất hiện nhiều nhất? Cho số lần của từng mã.",
+      "answer": "Tôi đã quét toàn bộ 30 file trong thư mục `logs/*.log` (tổng cộng 6.001 dòng). 3 mã lỗi dạng `ERR_*` xuất hiện nhiều nhất là:\n\n1. **`ERR_TOKEN_REUSED`**: 359 lần\n2. **`ERR_DB_TIMEOUT`**: 232 lần\n3. **`ERR_UPSTREAM_502`**: 144 lần",
+      "grade": {
+        "correct": true,
+        "names_ok": true,
+        "counts_ok": true,
+        "expected": {
+          "ERR_TOKEN_REUSED": 359,
+          "ERR_DB_TIMEOUT": 232,
+          "ERR_UPSTREAM_502": 144
+        }
+      },
+      "stats": {
+        "input_tokens": 3636,
+        "cached_tokens": 0,
+        "output_tokens": 716,
+        "thinking_tokens": 0,
+        "llm_calls": 3,
+        "compaction_input_tokens": 0,
+        "peak_context": 1626,
+        "turns": 1,
+        "n_compactions": 0,
+        "n_prunes": 0,
+        "over_window_calls": 0,
+        "final_context_est": 1650
+      },
+      "tool_calls": [
+        "run_code",
+        "run_code"
+      ],
+      "log_lines_in_context": 0,
+      "code_runs": [
+        {
+          "ok": false,
+          "error": "UnicodeEncodeError: 'charmap' codec can't encode character '\\u1ed1' in position 1: character maps to <undefined>",
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 0,
+          "elapsed_s": 0.125
+        },
+        {
+          "ok": true,
+          "error": null,
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 195,
+          "elapsed_s": 0.094
+        }
+      ],
+      "code": [
+        "import glob\nimport re\nfrom collections import Counter\n\nlog_files = glob.glob(\"logs/*.log\")\nprint(f\"Số file log tìm thấy: {len(log_files)}\")\n\ncounter = Counter()\nerr_pattern = re.compile(r'(ERR_[A-Z0-9_]+)')\n\ntotal_lines = 0\nmatched_lines = 0\n\nfor path in log_files:\n    try:\n        with open(path, 'r', encoding='utf-8', errors='ignore') as f:\n            for line in f:\n                total_lines += 1\n                matches = err_pattern.findall(line)\n                if matches:\n                    matched_lines += 1\n                    for m in matches:\n                        counter[m] += 1\n    except Exception as e:\n        print(f\"Lỗi đọc file {path}: {e}\")\n\nprint(f\"Tổng số dòng đã quét: {total_lines}\")\nprint(f\"Số dòng khớp mã ERR: {matched_lines}\")\nprint(\"Top 3 mã lỗi xuất hiện nhiều nhất:\")\nfor err, count in counter.most_common(3):\n    print(f\"- {err}: {count} lần\")\n",
+        "import glob\nimport re\nfrom collections import Counter\nimport sys\n\n# Đảm bảo in utf-8 nếu cần hoặc tránh ký tự tiếng Việt có dấu trong print nếu console lỗi\nsys.stdout.reconfigure(encoding='utf-8')\n\nlog_files = glob.glob(\"logs/*.log\")\nprint(f\"So file log tim thay: {len(log_files)}\")\n\ncounter = Counter()\nerr_pattern = re.compile(r'(ERR_[A-Z0-9_]+)')\n\ntotal_lines = 0\nmatched_lines = 0\n\nfor path in log_files:\n    try:\n        with open(path, 'r', encoding='utf-8', errors='ignore') as f:\n            for line in f:\n                total_lines += 1\n                matches = err_pattern.findall(line)\n                if matches:\n                    matched_lines += 1\n                    for m in matches:\n                        counter[m] += 1\n    except Exception as e:\n        print(f\"Loi doc file {path}: {e}\")\n\nprint(f\"Tong so dong da quet: {total_lines}\")\nprint(f\"So dong khop ma ERR: {matched_lines}\")\nprint(\"Top 3 ma loi xuat hien nhieu nhat:\")\nfor err, count in counter.most_common(3):\n    print(f\"- {err}: {count} lan\")\n"
+      ],
+      "policy_denied": []
+    },
+    {
+      "id": "Q2",
+      "question": "Đếm số request trả status 500 theo từng endpoint trên toàn bộ 30 file logs/*.log. Liệt kê endpoint và số lượng, giảm dần.",
+      "answer": "Đã quét toàn bộ **30 file log** trong thư mục `logs/` (tổng số 6.001 dòng log), phát hiện tổng cộng **676 request** trả về status `500`.\n\nDưới đây là thống kê chi tiết số lượng request lỗi 500 theo từng endpoint (sắp xếp theo thứ tự giảm dần):\n\n1. **POST /auth/refresh**: 288\n2. **GET /api/orders**: 212\n3. **POST /api/payments**: 69\n4. **POST /auth/logout**: 40\n5. **GET /api/cart**: 25\n6. **GET /api/users**: 22\n7. **POST /auth/login**: 20",
+      "grade": {
+        "correct": true,
+        "endpoints_correct": 7,
+        "expected": {
+          "/auth/refresh": 288,
+          "/api/orders": 212,
+          "/api/payments": 69,
+          "/auth/logout": 40,
+          "/api/cart": 25,
+          "/api/users": 22,
+          "/auth/login": 20
+        }
+      },
+      "stats": {
+        "input_tokens": 16464,
+        "cached_tokens": 0,
+        "output_tokens": 1754,
+        "thinking_tokens": 0,
+        "llm_calls": 8,
+        "compaction_input_tokens": 0,
+        "peak_context": 3595,
+        "turns": 1,
+        "n_compactions": 0,
+        "n_prunes": 0,
+        "over_window_calls": 0,
+        "final_context_est": 3719
+      },
+      "tool_calls": [
+        "run_code",
+        "run_code",
+        "run_code",
+        "run_code",
+        "run_code",
+        "run_code",
+        "run_code"
+      ],
+      "log_lines_in_context": 6,
+      "code_runs": [
+        {
+          "ok": false,
+          "error": "UnicodeEncodeError: 'charmap' codec can't encode character '\\u1ed5' in position 1: character maps to <undefined>",
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 0,
+          "elapsed_s": 0.109
+        },
+        {
+          "ok": true,
+          "error": null,
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 27,
+          "elapsed_s": 0.094
+        },
+        {
+          "ok": false,
+          "error": "ModuleNotFoundError: No module named 'tools'",
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 0,
+          "elapsed_s": 0.11
+        },
+        {
+          "ok": true,
+          "error": null,
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 811,
+          "elapsed_s": 0.125
+        },
+        {
+          "ok": true,
+          "error": null,
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 467,
+          "elapsed_s": 0.109
+        },
+        {
+          "ok": true,
+          "error": null,
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 281,
+          "elapsed_s": 0.125
+        },
+        {
+          "ok": true,
+          "error": null,
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 47,
+          "elapsed_s": 0.157
+        }
+      ],
+      "code": [
+        "import os\nfrom collections import Counter\nimport re\n\nlog_files = [f\"logs/log_{i}.log\" for i in range(1, 31)]\nprint(f\"Tổng số file log dự kiến: {len(log_files)}\")\n\n# Kiểm tra file nào tồn tại\nexisting = [f for f in log_files if os.path.exists(f)]\nprint(f\"Số file thực tế tồn tại: {len(existing)}\")\n\n# Mẫu regex để bắt endpoint và status 500\n# Tuỳ theo định dạng log, hãy viết regex phù hợp sau khi đọc mẫu.\n# Trước hết đọc vài dòng đầu của log đầu tiên.\nif existing:\n    with open(existing[0], 'r', encoding='utf-8') as f:\n        print(\"Mẫu 5 dòng đầu của log_1.log:\")\n        for _ in range(5):\n            line = f.readline()\n            if not line: break\n            print(line.strip())\n",
+        "import os\nimport sys\n\n# Đảm bảo stdout dùng utf-8\nsys.stdout.reconfigure(encoding='utf-8')\n\nlog_files = [f\"logs/log_{i}.log\" for i in range(1, 31)]\nexisting = [f for f in log_files if os.path.exists(f)]\nprint(f\"Số file thực tế tồn tại: {len(existing)}\")\n\nif existing:\n    with open(existing[0], 'r', encoding='utf-8') as f:\n        print(\"Mẫu 5 dòng đầu của log_1.log:\")\n        for _ in range(5):\n            line = f.readline()\n            if not line: break\n            print(line.strip())\n",
+        "import sys\nsys.stdout.reconfigure(encoding='utf-8')\nimport os\nfrom tools import list_files\n\nall_files = list_files(\"logs/*\")\nprint(\"Files in logs/*:\", all_files)\n\nall_any = list_files(\"**/*\")\nprint(\"All files count:\", len(all_any))\nprint(\"Sample files:\", all_any[:20])\n",
+        "import sys\nsys.stdout.reconfigure(encoding='utf-8')\nimport os\n\nprint(\"CWD:\", os.getcwd())\nprint(\"Danh sách thư mục/file:\", os.listdir('.'))\nif os.path.exists('logs'):\n    print(\"Danh sách logs:\", os.listdir('logs'))\nelse:\n    print(\"Thư mục logs không tồn tại trực tiếp.\")\n",
+        "import sys\nsys.stdout.reconfigure(encoding='utf-8')\nimport os\n\nlog_dir = 'logs'\nlog_files = [os.path.join(log_dir, f) for f in sorted(os.listdir(log_dir)) if f.endswith('.log')]\nprint(f\"Số file log tìm thấy: {len(log_files)}\")\n\nif log_files:\n    with open(log_files[0], 'r', encoding='utf-8') as f:\n        print(\"Mẫu 5 dòng đầu của log đầu tiên:\")\n        for _ in range(5):\n            line = f.readline()\n            if not line: break\n            print(line.strip())\n",
+        "import sys\nsys.stdout.reconfigure(encoding='utf-8')\nimport os\nimport re\nfrom collections import Counter\n\nlog_dir = 'logs'\nlog_files = [os.path.join(log_dir, f) for f in sorted(os.listdir(log_dir)) if f.endswith('.log')]\n\n# Regex để bắt endpoint và status 500\n# Dòng mẫu: 2026-09-01T00:14:24.197Z ERROR auth ERR_DB_TIMEOUT POST /auth/refresh 500 113ms req=3e7c65\n# Hoặc chung hơn: chứa method (GET|POST|PUT|DELETE|PATCH), endpoint (vd /auth/refresh, /api/users...), và số 500.\n# Hãy kiểm tra các định dạng dòng log khác nhau bằng cách duyệt toàn bộ file.\n\nendpoint_counter = Counter()\ntotal_lines = 0\nmatched_500 = 0\n\n# Regex pattern: tìm METHOD PATH 500\n# Ví dụ: (GET|POST|PUT|DELETE|PATCH)\\s+([^\\s]+)\\s+500\npattern = re.compile(r'\\b(GET|POST|PUT|DELETE|PATCH)\\s+([^\\s]+)\\s+500\\b')\n\nfor filepath in log_files:\n    with open(filepath, 'r', encoding='utf-8') as f:\n        for line in f:\n            total_lines += 1\n            match = pattern.search(line)\n            if match:\n                matched_500 += 1\n                method = match.group(1)\n                path = match.group(2)\n                endpoint_counter[f\"{method} {path}\"] += 1\n\nprint(f\"Đã quét {len(log_files)} file log, tổng số dòng: {total_lines}\")\nprint(f\"Tổng số request status 500 tìm thấy: {matched_500}\")\nprint(\"\\nDanh sách endpoint và số lượng lỗi 500 (giảm dần):\")\nfor endpoint, count in endpoint_counter.most_common():\n    print(f\"{endpoint}: {count}\")\n",
+        "import sys\nsys.stdout.reconfigure(encoding='utf-8')\nimport os\nimport re\n\n# Kiểm tra xem có dòng nào chứa '500' nhưng không khớp regex không\nlog_dir = 'logs'\nlog_files = [os.path.join(log_dir, f) for f in sorted(os.listdir(log_dir)) if f.endswith('.log')]\n\npattern = re.compile(r'\\b(GET|POST|PUT|DELETE|PATCH)\\s+([^\\s]+)\\s+500\\b')\nunmatched = []\n\nfor filepath in log_files:\n    with open(filepath, 'r', encoding='utf-8') as f:\n        for line in f:\n            if ' 500 ' in line or line.strip().endswith(' 500'):\n                if not pattern.search(line):\n                    unmatched.append(line.strip())\n\nprint(f\"Số dòng chứa ' 500 ' nhưng không khớp regex: {len(unmatched)}\")\nif unmatched:\n    print(\"Mẫu các dòng unmatched:\", unmatched[:5])\n"
+      ],
+      "policy_denied": []
+    },
+    {
+      "id": "Q3",
+      "question": "Trong ngày 2026-09-17 (logs/app-2026-09-17.log), endpoint nào có p95 latency cao nhất? Cho giá trị p95.",
+      "answer": "Dựa trên file log `logs/app-2026-09-17.log`, endpoint có p95 latency cao nhất trong ngày 2026-09-17 là:\n\n- **Endpoint:** `POST /api/payments`\n- **Giá trị p95 latency:** **1028 ms** (hoặc `1028.0ms`)\n- **Số mẫu (requests):** 26 (giá trị latency dao động từ 476ms đến 1067ms).\n\nCác endpoint khác để so sánh:\n- `GET /api/orders`: p95 = **319.6 ms**\n- `POST /auth/login`: p95 = **242.65 ms**\n- `GET /api/users`: p95 = **214.4 ms**\n- `POST /auth/refresh`: p95 = **175.85 ms**\n- `GET /api/cart`: p95 = **140.55 ms**\n- `POST /auth/logout`: p95 = **63.3 ms**",
+      "grade": {
+        "correct": true,
+        "expected": {
+          "/api/payments": 1029
+        }
+      },
+      "stats": {
+        "input_tokens": 9382,
+        "cached_tokens": 0,
+        "output_tokens": 1115,
+        "thinking_tokens": 0,
+        "llm_calls": 4,
+        "compaction_input_tokens": 0,
+        "peak_context": 3514,
+        "turns": 1,
+        "n_compactions": 0,
+        "n_prunes": 0,
+        "over_window_calls": 0,
+        "final_context_est": 3565
+      },
+      "tool_calls": [
+        "run_code",
+        "run_code",
+        "run_code"
+      ],
+      "log_lines_in_context": 20,
+      "code_runs": [
+        {
+          "ok": true,
+          "error": null,
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 1670,
+          "elapsed_s": 0.11
+        },
+        {
+          "ok": true,
+          "error": null,
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 661,
+          "elapsed_s": 0.218
+        },
+        {
+          "ok": true,
+          "error": null,
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 512,
+          "elapsed_s": 0.234
+        }
+      ],
+      "code": [
+        "import os\n\nlog_path = \"logs/app-2026-09-17.log\"\nif os.path.exists(log_path):\n    print(f\"File exists: {log_path}, size: {os.path.getsize(log_path)} bytes\")\n    with open(log_path, \"r\") as f:\n        lines = [f.readline() for _ in range(20)]\n    print(\"Sample lines:\")\n    for l in lines:\n        print(l.strip())\nelse:\n    print(f\"File not found: {log_path}\")\n    print(\"Available logs:\")\n    for root, dirs, files in os.walk(\".\"):\n        for f in files:\n            if \"log\" in f or \"2026\" in f:\n                print(os.path.join(root, f))\n",
+        "import re\nfrom collections import defaultdict\nimport numpy as np\n\nlog_path = \"logs/app-2026-09-17.log\"\npattern = re.compile(r'(?:GET|POST|PUT|DELETE|PATCH)\\s+([/\\w-]+)\\s+\\d+\\s+(\\d+)ms')\n\nlatencies_by_endpoint = defaultdict(list)\ntotal_lines = 0\nmatched_lines = 0\n\nwith open(log_path, 'r') as f:\n    for line in f:\n        total_lines += 1\n        m = re.search(r'(GET|POST|PUT|DELETE|PATCH)\\s+([/\\w-]+).*?(\\d+)ms', line)\n        if m:\n            method, endpoint, lat = m.groups()\n            key = f\"{method} {endpoint}\"\n            latencies_by_endpoint[key].append(int(lat))\n            matched_lines += 1\n\nprint(f\"Total lines: {total_lines}, matched: {matched_lines}\")\nprint(f\"Endpoints found: {list(latencies_by_endpoint.keys())}\")\n\nfor ep, lats in latencies_by_endpoint.items():\n    p95 = np.percentile(lats, 95)\n    print(f\"{ep}: count={len(lats)}, p95={p95}ms (min={min(lats)}, max={max(lats)})\")\n",
+        "import re\nimport numpy as np\nfrom collections import defaultdict\n\nlog_path = \"logs/app-2026-09-17.log\"\ndata = defaultdict(list)\n\nwith open(log_path, 'r') as f:\n    for line in f:\n        # Match lines containing HTTP method, path, status, latency\n        # Example: GET /api/users 200 37ms\n        m = re.search(r'(GET|POST|PUT|DELETE|PATCH)\\s+([/\\w-]+)\\s+\\d+\\s+(\\d+)ms', line)\n        if m:\n            method, path, lat = m.groups()\n            endpoint = f\"{method} {path}\"\n            data[endpoint].append(int(lat))\n\nprint(\"Detailed P95 calculation:\")\nfor ep, lats in sorted(data.items(), key=lambda x: np.percentile(x[1], 95), reverse=True):\n    arr = np.array(lats)\n    p95 = np.percentile(arr, 95)\n    print(f\"- {ep}: p95 = {p95}ms (samples: {len(arr)}, max: {arr.max()}ms)\")\n"
+      ],
+      "policy_denied": []
+    }
+  ],
+  "note": "runtime trước khi sửa: python -I bỏ qua PYTHONIOENCODING (UnicodeEncodeError) và chưa hỗ trợ import tools"
+}

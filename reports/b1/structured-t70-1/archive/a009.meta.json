@@ -1,0 +1,1 @@
+{"id": "a009", "tool": "read_file", "args": {"start_line": 1, "path": "src/session.ts", "end_line": 35}, "chars": 1342}

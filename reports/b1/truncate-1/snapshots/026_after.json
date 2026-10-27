@@ -1,0 +1,44 @@
+[
+ {
+  "i": 0,
+  "role": "user",
+  "turn": 11,
+  "tokens": 21,
+  "checkpoint": false,
+  "preview": "Ok, làm bước tiếp theo đi: sửa code để hết lỗi, rồi chạy lại test."
+ },
+ {
+  "i": 1,
+  "role": "assistant",
+  "turn": 11,
+  "tokens": 19,
+  "checkpoint": false,
+  "tool_calls": [
+   {
+    "name": "grep",
+    "args": {
+     "pattern": "ERR_TOKEN_REUSED"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"grep\", \"args\": {\"pattern\": \"ERR_TOKEN_REUSED\"}}]"
+ },
+ {
+  "i": 2,
+  "role": "tool",
+  "turn": 11,
+  "tokens": 6108,
+  "checkpoint": false,
+  "results": [
+   {
+    "name": "grep",
+    "label": "KEEP",
+    "archive_id": "a033",
+    "args": {
+     "pattern": "ERR_TOKEN_REUSED"
+    }
+   }
+  ],
+  "preview": "[{\"name\": \"grep\", \"response\": {\"ok\": true, \"count\": 360, \"truncated\": false, \"matches\": \"logs/app-2026-09-01.log:6: 2026-09-01T00:36:00.346Z ERROR auth ERR_TOKEN_REUSED POST /auth/refresh 500 174ms req=c08a58\\nlogs/app-2026-09-01.log:18: 2026-09-01T02:02:24.782Z ERROR auth ERR_TOKEN_REUSED POST /auth/refresh 500 158ms req=1cb4ba\\nlogs/app-2026-09-01.log:23: 2026-09-01T02:38:24.662Z ERROR auth ERR_TOKEN_REUSED POST /auth/refresh 500 208ms req=6b8629\\nlogs/app-2026-09-01.log:37: 2026-09-01T04:19:12.453Z ERROR api ERR_TOKEN_REUSED GET /api/orders 500 329ms req=2b54af\\nlogs/app-2026-09-01.log:55: 2026-09-01T06:28:48.436Z ERROR auth ERR_TOKEN_REUSED POST /auth/refresh 500 158ms req=e22b64\\nlogs/app-2026-09-01.log:74: 2026-09-01T08:45:36.561Z ERROR auth ERR_TOKEN_REUSED POST /auth/refresh 500 132ms req=7bc71d\\nlogs/app-2026-09-01.log:84: 2026-09-01T09:57:36.516Z ERROR auth ERR_TOKEN_REUSED POST /auth/refresh 500 129ms req=2bf397\\nlogs/app-2026-09-01.log:92: 2026-09-01T10:55:12.392Z ERROR auth ERR_TOKEN_REUSED POST /auth/refresh 500 156ms req=5bf508\\nlogs/app-2026-09-01.log:101: 2026-09-01T12:00:00.672Z ERROR auth ERR_TOKEN_REUSED POST /auth/refresh 500 116ms req=0a6fb1\\nlogs/app-2026-09-01.log:115: 2026-09-01T13:40:48.377Z ERROR auth ERR_TOKEN_REUSED POST /auth/refresh 500 127ms req=93cde6\\nlogs/app-2026-09-01.log:121: 2026-09-01T14:24:00.668Z ERROR auth ERR_TOKEN_REUSED POST /auth/refresh 500 165ms req=0bab5f\\nlogs/app-2026-09-01.log:129: 2026-09-01T15:21:36.000Z ERROR auth ERR_TO"
+ }
+]

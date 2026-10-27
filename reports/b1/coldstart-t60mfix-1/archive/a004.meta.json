@@ -1,0 +1,1 @@
+{"id": "a004", "tool": "read_file", "args": {"start_line": 1, "end_line": 150, "path": "tests/auth.test.ts"}, "chars": 1508}

@@ -1,0 +1,10 @@
+[
+ {
+  "i": 0,
+  "role": "user",
+  "turn": 12,
+  "tokens": 24,
+  "checkpoint": false,
+  "preview": "Chạy lại toàn bộ test một lần cuối và báo kết quả, kèm tóm tắt những gì đã sửa."
+ }
+]

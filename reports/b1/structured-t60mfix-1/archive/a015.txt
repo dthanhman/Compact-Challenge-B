@@ -1,0 +1,37 @@
+// tests/auth.test.ts
+import { refresh, issueTokenPair, logout } from "../src/auth";
+import { tokenStore } from "../src/tokenStore";
+import { getValidTokens, putSession } from "../src/session";
+
+describe("auth.refresh", () => {
+  test("rotates refresh token", async () => {
+    const p = issueTokenPair("u1");
+    await tokenStore.save(p.refreshToken, { userId: "u1", revoked: false });
+    const next = await refresh(p.refreshToken);
+    expect(next.refreshToken).not.toBe(p.refreshToken);
+  });
+
+  test("concurrent refresh returns same token", async () => {
+    const p = issueTokenPair("u2");
+    await tokenStore.save(p.refreshToken, { userId: "u2", revoked: false });
+    const [a, b] = await Promise.all([refresh(p.refreshToken), refresh(p.refreshToken)]);
+    expect(a.refreshToken).toBe(b.refreshToken);
+  });
+
+  test("refresh after expiry", async () => {
+    putSession("s1", { userId: "u3", tokens: { ...issueTokenPair("u3"), expiresAt: 0 } });
+    const [a, b] = await Promise.all([getValidTokens("s1"), getValidTokens("s1")]);
+    expect(a.accessToken).toBe(b.accessToken);
+  });
+
+  test("parallel logout", async () => {
+    const p = issueTokenPair("u4");
+    await tokenStore.save(p.refreshToken, { userId: "u4", revoked: false });
+    await Promise.all([refresh(p.refreshToken), logout(p.refreshToken)]);
+    expect((await tokenStore.get(p.refreshToken))?.revoked).toBe(true);
+  });
+
+  test("api: refresh signature is backward compatible", () => {
+    expect(refresh.length).toBe(1);
+  });
+});

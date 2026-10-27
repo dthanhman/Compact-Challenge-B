@@ -1,0 +1,12 @@
+# Câu hỏi B2: trả lời trên 30 file log; raw log không được đi vào context (Code Mode).
+id: b2_log_questions
+questions:
+  - id: Q1
+    text: "Trong tất cả các file logs/*.log, 3 mã lỗi (dạng ERR_*) nào xuất hiện nhiều nhất? Cho số lần của từng mã."
+    check: top3_error_codes
+  - id: Q2
+    text: "Đếm số request trả status 500 theo từng endpoint trên toàn bộ 30 file logs/*.log. Liệt kê endpoint và số lượng, giảm dần."
+    check: status500_by_endpoint
+  - id: Q3
+    text: "Trong ngày 2026-09-17 (logs/app-2026-09-17.log), endpoint nào có p95 latency cao nhất? Cho giá trị p95."
+    check: slowest_p95_endpoint

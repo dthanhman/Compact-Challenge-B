@@ -1,0 +1,199 @@
+{
+  "run": "code-1",
+  "mode": "code",
+  "model": "gemini-3.5-flash-lite",
+  "log_files": 30,
+  "log_total_lines": 6001,
+  "items": [
+    {
+      "id": "Q1",
+      "question": "Trong tất cả các file logs/*.log, 3 mã lỗi (dạng ERR_*) nào xuất hiện nhiều nhất? Cho số lần của từng mã.",
+      "answer": "Tôi đã quét qua 30 file log trong thư mục `logs/` (tổng số 6.001 dòng) và thống kê các mã lỗi có định dạng `ERR_*`.\n\nKết quả 3 mã lỗi xuất hiện nhiều nhất:\n1. **`ERR_TOKEN_REUSED`**: 359 lần\n2. **`ERR_DB_TIMEOUT`**: 232 lần\n3. **`ERR_UPSTREAM_502`**: 144 lần",
+      "grade": {
+        "correct": true,
+        "names_ok": true,
+        "counts_ok": true,
+        "expected": {
+          "ERR_TOKEN_REUSED": 359,
+          "ERR_DB_TIMEOUT": 232,
+          "ERR_UPSTREAM_502": 144
+        }
+      },
+      "stats": {
+        "input_tokens": 4237,
+        "cached_tokens": 0,
+        "output_tokens": 486,
+        "thinking_tokens": 0,
+        "llm_calls": 3,
+        "compaction_input_tokens": 0,
+        "peak_context": 1893,
+        "turns": 1,
+        "n_compactions": 0,
+        "n_prunes": 0,
+        "over_window_calls": 0,
+        "final_context_est": 1885
+      },
+      "tool_calls": [
+        "run_code",
+        "run_code"
+      ],
+      "log_lines_in_context": 0,
+      "code_runs": [
+        {
+          "ok": true,
+          "error": null,
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 835,
+          "elapsed_s": 0.125
+        },
+        {
+          "ok": true,
+          "error": null,
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 191,
+          "elapsed_s": 0.109
+        }
+      ],
+      "code": [
+        "import os\nfrom collections import Counter\nimport glob\n\n# Tìm tất cả file log\nlog_files = glob.glob(\"logs/**/*.log\", recursive=True)\nif not log_files:\n    log_files = glob.glob(\"logs/*.log\")\n\nprint(f\"Số file log tìm thấy: {len(log_files)}\")\nfor f in log_files:\n    print(\" -\", f)\n",
+        "import glob\nimport re\nfrom collections import Counter\n\nlog_files = glob.glob(\"logs/**/*.log\", recursive=True)\nif not log_files:\n    log_files = glob.glob(\"logs/*.log\")\n\ncounter = Counter()\npattern = re.compile(r'ERR_[A-Z0-9_]+')\n\ntotal_lines = 0\nmatched_codes = 0\n\nfor path in log_files:\n    with open(path, 'r', encoding='utf-8', errors='ignore') as f:\n        for line in f:\n            total_lines += 1\n            matches = pattern.findall(line)\n            for m in matches:\n                counter[m] += 1\n                matched_codes += 1\n\nprint(f\"Tổng số file quét: {len(log_files)}\")\nprint(f\"Tổng số dòng: {total_lines}\")\nprint(f\"Tổng số mã lỗi tìm thấy: {matched_codes}\")\nprint(\"Top 3 mã lỗi xuất hiện nhiều nhất:\")\nfor code, count in counter.most_common(3):\n    print(f\" - {code}: {count} lần\")\n"
+      ],
+      "policy_denied": []
+    },
+    {
+      "id": "Q2",
+      "question": "Đếm số request trả status 500 theo từng endpoint trên toàn bộ 30 file logs/*.log. Liệt kê endpoint và số lượng, giảm dần.",
+      "answer": "Tôi đã tiến hành quét toàn bộ 30 file log trong thư mục `logs/` (tổng cộng 6.001 dòng log) và lọc các request trả về status code `500`.\n\nKết quả thống kê số lượng request lỗi 500 theo từng endpoint (sắp xếp giảm dần):\n\n1. **POST /auth/refresh**: 288\n2. **GET /api/orders**: 212\n3. **POST /api/payments**: 69\n4. **POST /auth/logout**: 40\n5. **GET /api/cart**: 25\n6. **GET /api/users**: 22\n7. **POST /auth/login**: 20\n\n*(Tổng số request status 500 phát hiện được trên toàn bộ hệ thống log là 676 request).*",
+      "grade": {
+        "correct": true,
+        "endpoints_correct": 7,
+        "expected": {
+          "/auth/refresh": 288,
+          "/api/orders": 212,
+          "/api/payments": 69,
+          "/auth/logout": 40,
+          "/api/cart": 25,
+          "/api/users": 22,
+          "/auth/login": 20
+        }
+      },
+      "stats": {
+        "input_tokens": 5026,
+        "cached_tokens": 0,
+        "output_tokens": 882,
+        "thinking_tokens": 0,
+        "llm_calls": 3,
+        "compaction_input_tokens": 0,
+        "peak_context": 2406,
+        "turns": 1,
+        "n_compactions": 0,
+        "n_prunes": 0,
+        "over_window_calls": 0,
+        "final_context_est": 2439
+      },
+      "tool_calls": [
+        "run_code",
+        "run_code"
+      ],
+      "log_lines_in_context": 11,
+      "code_runs": [
+        {
+          "ok": true,
+          "error": null,
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 1089,
+          "elapsed_s": 0.125
+        },
+        {
+          "ok": true,
+          "error": null,
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 289,
+          "elapsed_s": 0.125
+        }
+      ],
+      "code": [
+        "import os\nfrom collections import defaultdict\nimport glob\n\n# Tìm tất cả file log\nlog_files = glob.glob(\"logs/*.log\")\nprint(f\"Tổng số file log tìm thấy: {len(log_files)}\")\n\n# Dùng script Python thuần túy để phân tích log và đếm status 500 theo endpoint\n# Cấu trúc log có thể là nginx/http access log. Hãy kiểm tra một số dòng log trước.\n\nsample_lines = []\nfor fpath in log_files[:2]:\n    with open(fpath, 'r', encoding='utf-8', errors='ignore') as f:\n        for i in range(5):\n            line = f.readline()\n            if line:\n                sample_lines.append((fpath, line.strip()))\n\nprint(\"Mẫu log:\")\nfor p, l in sample_lines[:10]:\n    print(f\"{p}: {l}\")\n",
+        "import glob\nimport re\nfrom collections import defaultdict\n\nlog_files = glob.glob(\"logs/*.log\")\nendpoint_counts = defaultdict(int)\n\n# Regex mẫu: 2026-09-01T00:14:24.197Z ERROR auth ERR_DB_TIMEOUT POST /auth/refresh 500 113ms req=3e7c65\n# Hoặc tổng quát hơn: tìm dòng chứa \" 500 \" hoặc kết thúc/có status 500.\n# Hãy kiểm tra các dòng có chứa \"500\"\n# Định dạng: ... [METHOD] [ENDPOINT] 500 ...\n# Ví dụ: GET /api/users 500 ... hoặc POST /auth/refresh 500 ...\n\npattern = re.compile(r'(GET|POST|PUT|DELETE|PATCH)\\s+([^\\s]+)\\s+500\\b')\n\ntotal_lines = 0\nmatched_lines = 0\n\nfor fpath in log_files:\n    with open(fpath, 'r', encoding='utf-8', errors='ignore') as f:\n        for line in f:\n            total_lines += 1\n            match = pattern.search(line)\n            if match:\n                matched_lines += 1\n                method = match.group(1)\n                endpoint = match.group(2)\n                key = f\"{method} {endpoint}\"\n                endpoint_counts[key] += 1\n\nprint(f\"Tổng số file đã quét: {len(log_files)}\")\nprint(f\"Tổng số dòng log: {total_lines}\")\nprint(f\"Tổng số request status 500 khớp: {matched_lines}\")\nprint(\"\\nDanh sách endpoint và số lượng request 500 (giảm dần):\")\n\nsorted_endpoints = sorted(endpoint_counts.items(), key=lambda x: x[1], reverse=True)\nfor ep, count in sorted_endpoints:\n    print(f\"{ep}: {count}\")\n"
+      ],
+      "policy_denied": []
+    },
+    {
+      "id": "Q3",
+      "question": "Trong ngày 2026-09-17 (logs/app-2026-09-17.log), endpoint nào có p95 latency cao nhất? Cho giá trị p95.",
+      "answer": "Dựa trên dữ liệu trong file log `logs/app-2026-09-17.log`:\n\nEndpoint có **p95 latency cao nhất** trong ngày 2026-09-17 là:\n- **`POST /api/payments`**\n- Giá trị **p95 latency**: **1028.0 ms** (1028 ms) (số lượng request `n = 26`, giá trị max là `1067ms`).\n\nDanh sách p95 latency của các endpoint khác để tham khảo:\n1. `POST /api/payments`: p95 = **1028.0 ms**\n2. `GET /api/orders`: p95 = **319.6 ms**\n3. `POST /auth/login`: p95 = **242.6 ms**\n4. `GET /api/users`: p95 = **214.4 ms**\n5. `POST /auth/refresh`: p95 = **175.85 ms**\n6. `GET /api/cart`: p95 = **140.55 ms**\n7. `POST /auth/logout`: p95 = **63.3 ms**",
+      "grade": {
+        "correct": true,
+        "expected": {
+          "/api/payments": 1029
+        }
+      },
+      "stats": {
+        "input_tokens": 13955,
+        "cached_tokens": 0,
+        "output_tokens": 1272,
+        "thinking_tokens": 0,
+        "llm_calls": 5,
+        "compaction_input_tokens": 0,
+        "peak_context": 4292,
+        "turns": 1,
+        "n_compactions": 0,
+        "n_prunes": 0,
+        "over_window_calls": 0,
+        "final_context_est": 4396
+      },
+      "tool_calls": [
+        "run_code",
+        "run_code",
+        "run_code",
+        "run_code"
+      ],
+      "log_lines_in_context": 32,
+      "code_runs": [
+        {
+          "ok": true,
+          "error": null,
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 1670,
+          "elapsed_s": 0.125
+        },
+        {
+          "ok": true,
+          "error": null,
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 985,
+          "elapsed_s": 0.547
+        },
+        {
+          "ok": false,
+          "error": "NameError: name 're' is not defined",
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 0,
+          "elapsed_s": 0.11
+        },
+        {
+          "ok": true,
+          "error": null,
+          "tool_calls": 0,
+          "runtime_tokens": 0,
+          "stdout_chars_total": 1368,
+          "elapsed_s": 0.11
+        }
+      ],
+      "code": [
+        "import os\n\nlog_path = \"logs/app-2026-09-17.log\"\nif os.path.exists(log_path):\n    print(f\"File exists: {log_path}, size: {os.path.getsize(log_path)} bytes\")\n    with open(log_path, \"r\", encoding=\"utf-8\", errors=\"ignore\") as f:\n        lines = [f.readline() for _ in range(20)]\n    print(\"Sample lines:\")\n    for l in lines:\n        if l.strip():\n            print(l.strip())\nelse:\n    print(f\"File not found: {log_path}\")\n    print(\"Listing logs directory:\")\n    print(os.listdir(\"logs\") if os.path.exists(\"logs\") else \"logs dir not found\")\n",
+        "import re\nfrom collections import defaultdict\nimport numpy as np\n\nlog_path = \"logs/app-2026-09-17.log\"\nendpoint_latencies = defaultdict(list)\n\n# Pattern to extract method, endpoint and latency (in ms)\n# Examples:\n# GET /api/users 200 37ms\n# ERROR api ERR_DB_TIMEOUT GET /api/users 500 194ms\n# INFO  payments - POST /api/payments 200 905ms\n\npattern = re.compile(r'(GET|POST|PUT|DELETE|PATCH)\\s+([/\\w-]+)(?:\\s+\\d+)?\\s+(\\d+)ms')\n\ntotal_lines = 0\nmatched_lines = 0\n\nwith open(log_path, \"r\", encoding=\"utf-8\", errors=\"ignore\") as f:\n    for line in f:\n        total_lines += 1\n        m = pattern.search(line)\n        if m:\n            matched_lines += 1\n            method, endpoint, latency = m.groups()\n            key = f\"{method} {endpoint}\"\n            endpoint_latencies[key].append(int(latency))\n        else:\n            # Let's inspect unmatched lines if any\n            pass\n\nprint(f\"Total lines: {total_lines}, Matched lines: {matched_lines}\")\nprint(f\"Endpoints found: {list(endpoint_latencies.keys())}\")\n\nresults = []\nfor endpoint, latencies in endpoint_latencies.items():\n    p95 = np.percentile(latencies, 95)\n    results.append((endpoint, p95, len(latencies), latencies))\n    print(f\"{endpoint}: count={len(latencies)}, p95={p95}ms, max={max(latencies)}ms\")\n\n# Sort by p95 descending\nresults.sort(key=lambda x: x[1], reverse=True)\nprint(\"\\nSorted by p95:\")\nfor r in results:\n    print(f\"- {r[0]}: p95 = {r[1]}ms (n={r[2]})\")\n",
+        "# Let's double check all unmatched lines to ensure no other endpoints were missed\nwith open(\"logs/app-2026-09-17.log\", \"r\", encoding=\"utf-8\", errors=\"ignore\") as f:\n    for idx, line in enumerate(f, 1):\n        if not re.search(r'(GET|POST|PUT|DELETE|PATCH)\\s+([/\\w-]+)(?:\\s+\\d+)?\\s+(\\d+)ms', line):\n            print(f\"Unmatched line {idx}: {line.strip()}\")\n",
+        "import re\nwith open(\"logs/app-2026-09-17.log\", \"r\", encoding=\"utf-8\", errors=\"ignore\") as f:\n    for idx, line in enumerate(f, 1):\n        if not re.search(r'(GET|POST|PUT|DELETE|PATCH)\\s+([/\\w-]+)(?:\\s+\\d+)?\\s+(\\d+)ms', line):\n            print(f\"Unmatched line {idx}: {line.strip()}\")\n"
+      ],
+      "policy_denied": []
+    }
+  ]
+}
